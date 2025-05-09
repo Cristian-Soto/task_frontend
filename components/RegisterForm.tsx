@@ -96,7 +96,7 @@ export default function RegisterForm() {
   }
 
   const getInputClass = (hasError: boolean) => {
-    return `border ${hasError ? 'border-red-500 bg-red-50' : 'border-gray-300'} p-2 rounded transition-colors focus:outline-none focus:ring-2 ${hasError ? 'focus:ring-red-200' : 'focus:ring-blue-200'} focus:border-transparent`;
+    return `border ${hasError ? 'border-red-500 bg-red-50' : 'border-gray-300'} p-2 rounded transition-colors focus:outline-none focus:ring-2 ${hasError ? 'focus:ring-red-200' : 'focus:ring-blue-200'} focus:border-transparent text-gray-700 placeholder-gray-500 placeholder-opacity-100 font-medium text-base`;
   }
 
   return (

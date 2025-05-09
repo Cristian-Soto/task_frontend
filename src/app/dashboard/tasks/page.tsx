@@ -55,11 +55,10 @@ export default function TasksPage() {
       throw error;
     }
   };
-
   return (
     <div className="space-y-4">
       <header className="mb-8">
-        <h1 className="text-3xl font-bold">Gestión de Tareas</h1>
+        <h1 className="text-3xl font-bold text-gray-700">Gestión de Tareas</h1>
         <p className="text-gray-600">Administra y organiza todas tus tareas en un solo lugar</p>
       </header>
 

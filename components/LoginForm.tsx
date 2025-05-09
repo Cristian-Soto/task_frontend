@@ -53,12 +53,10 @@ export default function LoginForm() {
     }
 
     setLoading(true);
-    
-    try {
+      try {
       const loadingToast = toast.loading("Iniciando sesión...");
-      const { access, refresh } = await authService.login(email, password);
-      localStorage.setItem("access_token", access);
-      localStorage.setItem("refresh_token", refresh);
+      // El servicio de autenticación ya maneja el almacenamiento de tokens
+      await authService.login(email, password);
       
       toast.dismiss(loadingToast);
       toast.success("¡Inicio de sesión exitoso!");
@@ -73,7 +71,7 @@ export default function LoginForm() {
   };
 
   const getInputClass = (hasError: boolean) => {
-    return `border ${hasError ? 'border-red-500 bg-red-50' : 'border-gray-300'} p-3 rounded transition-colors focus:outline-none focus:ring-2 ${hasError ? 'focus:ring-red-200' : 'focus:ring-blue-200'} focus:border-transparent text-base placeholder-gray-500 placeholder-opacity-100 font-medium`;
+    return `border ${hasError ? 'border-red-500 bg-red-50' : 'border-gray-300'} p-3 rounded transition-colors focus:outline-none focus:ring-2 ${hasError ? 'focus:ring-red-200' : 'focus:ring-blue-200'} focus:border-transparent text-base placeholder-gray-500 placeholder-opacity-100 font-medium text-gray-700`;
   }
 
   return (

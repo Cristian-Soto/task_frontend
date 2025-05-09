@@ -31,12 +31,12 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onStatusCha
   return (
     <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
       <div className="flex justify-between items-start mb-4">
-        <h3 className="text-xl font-semibold">{task.title}</h3>
+        <h3 className="text-xl font-semibold text-gray-700">{task.title}</h3>
         <div className="flex space-x-2">
-          <span className={`px-3 py-1 rounded-full text-xs font-medium ${priorityColors[task.priority]}`}>
+          <span className={`px-3 py-1 rounded-full text-xs text-gray-700 font-medium ${priorityColors[task.priority]}`}>
             {task.priority === 'baja' ? 'Baja' : task.priority === 'media' ? 'Media' : 'Alta'}
           </span>
-          <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[task.status]}`}>
+          <span className={`px-3 py-1 rounded-full text-xs text-gray-700 font-medium ${statusColors[task.status]}`}>
             {task.status === 'pendiente' ? 'Pendiente' : task.status === 'en_progreso' ? 'En progreso' : 'Completada'}
           </span>
         </div>
@@ -59,7 +59,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onStatusCha
         <select
           value={task.status}
           onChange={handleStatusChange}
-          className="text-sm border rounded p-1 bg-white"
+          className="text-sm border rounded p-1 bg-white text-gray-600"
         >
           <option value="pendiente">Pendiente</option>
           <option value="en_progreso">En progreso</option>

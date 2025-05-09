@@ -70,7 +70,7 @@ export default function ProfilePage() {
   
   return (
     <div className="max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-8">Mi Perfil</h1>
+      <h1 className="text-2xl font-bold mb-8 text-gray-700">Mi Perfil</h1>
       
       {loading ? (
         <div className="animate-pulse space-y-4 bg-white p-6 rounded-lg shadow-md">
@@ -95,13 +95,13 @@ export default function ProfilePage() {
               }
             </h2>
             <p className="text-gray-600 mt-1">{user?.email}</p>
-            <p className="text-gray-500 mt-1">Usuario desde: Mayo 2023</p>
+            <p className="text-gray-500 mt-1">Usuario desde: Mayo 2025</p>
           </div>
           
           {/* Formulario de información personal */}
           <form onSubmit={handleSaveProfile}>
             <div className="space-y-6">
-              <h3 className="text-lg font-medium pb-2 border-b border-gray-200">Información Personal</h3>
+              <h3 className="text-lg font-medium pb-2 border-b border-gray-200 text-gray-700">Información Personal</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>

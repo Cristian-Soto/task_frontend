@@ -55,7 +55,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
 
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-xl font-bold mb-6">{isEditing ? 'Editar Tarea' : 'Nueva Tarea'}</h2>
+      <h2 className="text-xl font-bold mb-6 text-gray-900">{isEditing ? 'Editar Tarea' : 'Nueva Tarea'}</h2>
       
       <div className="mb-4">
         <label htmlFor="title" className="block text-gray-700 text-sm font-medium mb-2">
@@ -67,7 +67,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
           name="title"
           value={formData.title}
           onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-700"
           placeholder="Título de la tarea"
           required
         />
@@ -83,7 +83,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
           value={formData.description}
           onChange={handleChange}
           rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-700"
           placeholder="Descripción detallada de la tarea"
         />
       </div>
@@ -98,7 +98,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
             name="status"
             value={formData.status}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-700"
           >
             <option value="pendiente">Pendiente</option>
             <option value="en_progreso">En Progreso</option>
@@ -115,7 +115,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
             name="priority"
             value={formData.priority}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-700"
           >
             <option value="baja">Baja</option>
             <option value="media">Media</option>
@@ -133,7 +133,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
             name="due_date"
             value={formData.due_date}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-700"
           />
         </div>
       </div>

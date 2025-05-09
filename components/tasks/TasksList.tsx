@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Task } from '@/service/task';
 import TaskCard from './TaskCard';
 import TaskForm from './TaskForm';
-import { Dialog } from '@headlessui/react';
 import toast from 'react-hot-toast';
 
 interface TasksListProps {
@@ -88,13 +87,13 @@ const TasksList: React.FC<TasksListProps> = ({
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h2 className="text-2xl font-bold">Mis Tareas</h2>
+        <h2 className="text-2xl font-bold text-gray-700">Mis Tareas</h2>
         
         <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value as any)}
-            className="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm"
+            className="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm text-gray-600"
           >
             <option value="todas">Todas</option>
             <option value="pendiente">Pendientes</option>
@@ -162,12 +161,10 @@ const TasksList: React.FC<TasksListProps> = ({
             Crear tarea
           </button>
         </div>
-      )}
-
-      {/* Form Modal */}
+      )}      {/* Form Modal */}
       {isFormOpen && (
-        <div className="fixed inset-0 z-10 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center px-4">
-          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl">
+        <div className="fixed inset-0 z-10 overflow-y-auto backdrop-blur-sm bg-black/30 flex items-center justify-center px-4" onClick={handleCloseForm}>
+          <div onClick={(e) => e.stopPropagation()} className="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl">
             <TaskForm
               task={currentTask}
               onSubmit={handleSubmitForm}
@@ -175,39 +172,36 @@ const TasksList: React.FC<TasksListProps> = ({
             />
           </div>
         </div>
-      )}
+      )}      {/* Delete Confirmation Dialog */}
+      {isDeleteDialogOpen && (
+        <div className="fixed inset-0 z-10 overflow-y-auto backdrop-blur-sm bg-black/30" onClick={() => setIsDeleteDialogOpen(false)}>
+          <div className="min-h-screen px-4 flex items-center justify-center">
+            <div className="fixed inset-0" onClick={() => setIsDeleteDialogOpen(false)}></div>
 
-      {/* Delete Confirmation Dialog */}      <Dialog
-        open={isDeleteDialogOpen}
-        onClose={() => setIsDeleteDialogOpen(false)}
-        className="fixed inset-0 z-10 overflow-y-auto"
-      >
-        <div className="min-h-screen px-4 flex items-center justify-center">
-          <div className="fixed inset-0 bg-black opacity-30"></div>
+            <div onClick={(e) => e.stopPropagation()} className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md z-20 relative">
+              <h2 className="text-xl font-bold mb-4">Confirmar eliminación</h2>
+              <p className="text-gray-600 mb-6">
+                ¿Estás seguro de que deseas eliminar esta tarea? Esta acción no se puede deshacer.
+              </p>
 
-          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md z-20">
-            <Dialog.Title className="text-xl font-bold mb-4">Confirmar eliminación</Dialog.Title>
-            <Dialog.Description className="text-gray-600 mb-6">
-              ¿Estás seguro de que deseas eliminar esta tarea? Esta acción no se puede deshacer.
-            </Dialog.Description>
-
-            <div className="flex justify-end space-x-3">
-              <button
-                onClick={() => setIsDeleteDialogOpen(false)}
-                className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleConfirmDelete}
-                className="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none"
-              >
-                Eliminar
-              </button>
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => setIsDeleteDialogOpen(false)}
+                  className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleConfirmDelete}
+                  className="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none"
+                >
+                  Eliminar
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </Dialog>
+      )}
     </div>
   );
 };

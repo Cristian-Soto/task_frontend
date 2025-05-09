@@ -7,8 +7,8 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    // Redireccionar a la página de login automáticamente
-    router.replace("/login");
+    // Redireccionar a la página de dashboard automáticamente
+    router.replace("/dashboard");
   }, [router]);
 
   // Esta página no renderiza nada visible ya que redirecciona inmediatamente

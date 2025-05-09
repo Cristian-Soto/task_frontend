@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { authService } from "@/service/auth";
 
 const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
 
   const toggleSidebar = () => {
     setCollapsed(!collapsed);
@@ -50,11 +52,12 @@ const Sidebar = () => {
       ),
       path: "/dashboard/settings",
     }
-  ];
-
-  const handleLogout = () => {
-    localStorage.removeItem('access_token');
-    window.location.href = '/login';
+  ];  const handleLogout = () => {
+    // Usar el servicio de autenticación para cerrar sesión
+    authService.logout();
+    
+    // Redirigir al login usando el router de Next.js
+    router.push('/login');
   };
 
   return (
