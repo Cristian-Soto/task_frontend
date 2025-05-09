@@ -7,21 +7,14 @@ import { authService } from '@/service/auth'
 import toast from 'react-hot-toast'
 
 export default function RegisterForm() {
-  // Campos actualizados según los requerimientos del backend
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
-  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [password2, setPassword2] = useState('')
-  const [firstName, setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
-  
-  // Estados de error para cada campo
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [nameError, setNameError] = useState('')
   const [emailError, setEmailError] = useState('')
-  const [usernameError, setUsernameError] = useState('')
   const [passwordError, setPasswordError] = useState('')
-  const [password2Error, setPassword2Error] = useState('')
-  const [firstNameError, setFirstNameError] = useState('')
-  const [lastNameError, setLastNameError] = useState('')
+  const [confirmPasswordError, setConfirmPasswordError] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
@@ -36,34 +29,19 @@ export default function RegisterForm() {
     e.preventDefault()
     
     // Reiniciar todos los errores
+    setNameError('')
     setEmailError('')
-    setUsernameError('')
     setPasswordError('')
-    setPassword2Error('')
-    setFirstNameError('')
-    setLastNameError('')
+    setConfirmPasswordError('')
     setError('')
     
     // Validaciones de campos
     let hasError = false
     
-    // Validar nombre y apellido
-    if (firstName.trim().length < 2) {
-      setFirstNameError('El nombre debe tener al menos 2 caracteres')
+    // Validar nombre
+    if (name.trim().length < 3) {
+      setNameError('El nombre debe tener al menos 3 caracteres')
       toast.error('El nombre es demasiado corto')
-      hasError = true
-    }
-    
-    if (lastName.trim().length < 2) {
-      setLastNameError('El apellido debe tener al menos 2 caracteres')
-      toast.error('El apellido es demasiado corto')
-      hasError = true
-    }
-    
-    // Validar nombre de usuario
-    if (username.trim().length < 3) {
-      setUsernameError('El nombre de usuario debe tener al menos 3 caracteres')
-      toast.error('El nombre de usuario es demasiado corto')
       hasError = true
     }
 
@@ -82,8 +60,8 @@ export default function RegisterForm() {
     }
 
     // Verificar que las contraseñas coincidan
-    if (password !== password2) {
-      setPassword2Error('Las contraseñas no coinciden')
+    if (password !== confirmPassword) {
+      setConfirmPasswordError('Las contraseñas no coinciden')
       toast.error('Las contraseñas no coinciden')
       hasError = true
     }
@@ -98,15 +76,8 @@ export default function RegisterForm() {
       // Mostrar notificación de carga
       const loadingToast = toast.loading('Creando cuenta...')
       
-      // Usar el servicio de autenticación para registrar al usuario con los campos actualizados
-      await authService.register(
-        email,
-        username,
-        password,
-        password2,
-        firstName,
-        lastName
-      )
+      // Usar el servicio de autenticación para registrar al usuario
+      await authService.register(name, email, password)
       
       // Cerrar notificación de carga
       toast.dismiss(loadingToast)
@@ -125,58 +96,28 @@ export default function RegisterForm() {
   }
 
   const getInputClass = (hasError: boolean) => {
-    return `border ${hasError ? 'border-red-500 bg-red-50' : 'border-gray-300'} p-3 rounded transition-colors focus:outline-none focus:ring-2 ${hasError ? 'focus:ring-red-200' : 'focus:ring-blue-200'} focus:border-transparent text-base placeholder-gray-500 placeholder-opacity-100 font-medium text-gray-800`;
+    return `border ${hasError ? 'border-red-500 bg-red-50' : 'border-gray-300'} p-2 rounded transition-colors focus:outline-none focus:ring-2 ${hasError ? 'focus:ring-red-200' : 'focus:ring-blue-200'} focus:border-transparent`;
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex flex-col gap-4 p-6 rounded-lg shadow-md w-96 bg-white"
-    >
-      <h1 className="text-2xl font-bold text-center mb-2 text-blue-700">Crear cuenta</h1>
+    <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md w-full max-w-sm">
+      <h1 className="text-2xl font-bold mb-6 text-center">Crear cuenta</h1>
       
-      {error && <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-3 rounded">{error}</div>}
+      {error && <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-3 rounded mb-4">{error}</div>}
       
-      <div className="flex flex-col gap-1">
+      <div className="mb-4">
         <input
           type="text"
-          placeholder="Nombre"
-          className={getInputClass(!!firstNameError)}
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
+          placeholder="Nombre completo"
+          className={getInputClass(!!nameError)}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
           required
-          style={{ fontSize: '1.05rem', color: '#1f2937' }}
         />
-        {firstNameError && <p className="text-red-500 text-sm">{firstNameError}</p>}
-      </div>
-
-      <div className="flex flex-col gap-1">
-        <input
-          type="text"
-          placeholder="Apellido"
-          className={getInputClass(!!lastNameError)}
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
-          required
-          style={{ fontSize: '1.05rem', color: '#1f2937' }}
-        />
-        {lastNameError && <p className="text-red-500 text-sm">{lastNameError}</p>}
+        {nameError && <p className="text-red-500 text-sm mt-1">{nameError}</p>}
       </div>
       
-      <div className="flex flex-col gap-1">
-        <input
-          type="text"
-          placeholder="Nombre de usuario"
-          className={getInputClass(!!usernameError)}
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-          style={{ fontSize: '1.05rem', color: '#1f2937' }}
-        />
-        {usernameError && <p className="text-red-500 text-sm">{usernameError}</p>}
-      </div>
-      
-      <div className="flex flex-col gap-1">
+      <div className="mb-4">
         <input
           type="email"
           placeholder="Correo electrónico"
@@ -184,12 +125,11 @@ export default function RegisterForm() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          style={{ fontSize: '1.05rem', color: '#1f2937' }}
         />
-        {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
+        {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
       </div>
       
-      <div className="flex flex-col gap-1">
+      <div className="mb-4">
         <input
           type="password"
           placeholder="Contraseña"
@@ -197,27 +137,25 @@ export default function RegisterForm() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          style={{ fontSize: '1.05rem', color: '#1f2937' }}
         />
-        {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
+        {passwordError && <p className="text-red-500 text-sm mt-1">{passwordError}</p>}
       </div>
       
-      <div className="flex flex-col gap-1">
+      <div className="mb-6">
         <input
           type="password"
           placeholder="Confirmar contraseña"
-          className={getInputClass(!!password2Error)}
-          value={password2}
-          onChange={(e) => setPassword2(e.target.value)}
+          className={getInputClass(!!confirmPasswordError)}
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
           required
-          style={{ fontSize: '1.05rem', color: '#1f2937' }}
         />
-        {password2Error && <p className="text-red-500 text-sm">{password2Error}</p>}
+        {confirmPasswordError && <p className="text-red-500 text-sm mt-1">{confirmPasswordError}</p>}
       </div>
       
-      <button 
-        type="submit" 
-        className={`bg-indigo-600 text-white p-3 rounded font-medium hover:bg-indigo-700 transition-colors mt-3 flex justify-center items-center ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+      <button
+        type="submit"
+        className={`w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 mb-4 flex justify-center items-center ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
         disabled={loading}
       >
         {loading ? (
@@ -231,11 +169,9 @@ export default function RegisterForm() {
         ) : 'Registrarse'}
       </button>
       
-      <div className="my-2 border-t border-gray-200"></div>
-      
       <p className="text-center text-sm text-gray-600">
         ¿Ya tienes una cuenta?{' '}
-        <Link href="/login" className="text-purple-600 hover:text-purple-800 hover:underline font-medium">
+        <Link href="/login" className="text-blue-600 hover:underline font-medium">
           Inicia sesión
         </Link>
       </p>

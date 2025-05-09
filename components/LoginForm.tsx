@@ -73,7 +73,7 @@ export default function LoginForm() {
   };
 
   const getInputClass = (hasError: boolean) => {
-    return `border ${hasError ? 'border-red-500 bg-red-50' : 'border-gray-300'} p-3 rounded transition-colors focus:outline-none focus:ring-2 ${hasError ? 'focus:ring-red-200' : 'focus:ring-blue-200'} focus:border-transparent text-base placeholder-gray-500 placeholder-opacity-100 font-medium text-gray-800`;
+    return `border ${hasError ? 'border-red-500 bg-red-50' : 'border-gray-300'} p-3 rounded transition-colors focus:outline-none focus:ring-2 ${hasError ? 'focus:ring-red-200' : 'focus:ring-blue-200'} focus:border-transparent text-base placeholder-gray-500 placeholder-opacity-100 font-medium`;
   }
 
   return (
@@ -93,7 +93,7 @@ export default function LoginForm() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          style={{ fontSize: '1.05rem', color: '#1f2937' }}
+          style={{ fontSize: '1.05rem' }}
         />
         {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
       </div>
@@ -106,14 +106,14 @@ export default function LoginForm() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          style={{ fontSize: '1.05rem', color: '#1f2937' }}
+          style={{ fontSize: '1.05rem' }}
         />
         {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
       </div>
       
       <button 
         type="submit" 
-        className={`bg-indigo-600 text-white p-3 rounded font-medium hover:bg-indigo-700 transition-colors mt-3 flex justify-center items-center ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+        className={`bg-blue-600 text-white p-3 rounded font-medium hover:bg-blue-700 transition-colors mt-3 flex justify-center items-center ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
         disabled={loading}
       >
         {loading ? (
@@ -131,7 +131,7 @@ export default function LoginForm() {
       
       <p className="text-center text-sm text-gray-600">
         ¿No tienes cuenta?{' '}
-        <Link href="/register" className="text-purple-600 hover:text-purple-800 hover:underline font-medium">
+        <Link href="/register" className="text-blue-600 hover:underline font-medium">
           Regístrate aquí
         </Link>
       </p>
