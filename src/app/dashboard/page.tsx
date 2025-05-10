@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { userService } from '@/service/user';
-import { taskService, Task } from '@/service/task';
+import { taskService, Task, STATUS_MAPPING } from '@/service/task';
 import Image from 'next/image';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
@@ -27,9 +27,10 @@ export default function DashboardPage() {
         setLoading(false);
       }
     };
-    
-    fetchUserData();
-  }, []);  const fetchTasks = async () => {
+      fetchUserData();
+  }, []);  
+  
+  const fetchTasks = async () => {
     try {
       setTasksLoading(true);
       
@@ -80,7 +81,7 @@ export default function DashboardPage() {
   const stats = [
     { title: "Tareas Completadas", value: completedTasks.toString(), icon: "/file.svg", color: "bg-green-500" },
     { title: "Tareas Pendientes", value: pendingTasks.toString(), icon: "/window.svg", color: "bg-yellow-500" },
-    { title: "Tareas En Progreso", value: inProgressTasks.toString(), icon: "/file.svg", color: "bg-blue-500" },
+    { title: "Tareas En Proceso", value: inProgressTasks.toString(), icon: "/file.svg", color: "bg-blue-500" },
     { title: "Total Tareas", value: tasks.length.toString(), icon: "/globe.svg", color: "bg-purple-500" },
   ];
   // Obtener las últimas 3 tareas
@@ -112,10 +113,19 @@ export default function DashboardPage() {
       // Guardar la tarea actual para poder restaurarla en caso de error
       const currentTasks = [...tasks];
       
-      // Actualizar optimistamente en la UI para una experiencia más fluida
-      setTasks(prev => prev.map(task => 
-        task.id === taskId ? { ...task, status: newStatus } : task
-      ));
+      // Aplicar actualización optimista para mejor experiencia de usuario
+      const tasksBeforeUpdate = [...tasks];
+      const taskToUpdate = tasksBeforeUpdate.find(t => t.id === taskId);
+      
+      if (!taskToUpdate) {
+        console.error(`No se encontró la tarea con ID ${taskId}`);
+        toast.error('Error: No se encontró la tarea', { id: `status-update-${taskId}` });
+        return;
+      }
+      
+      // Mostrar logs para depuración
+      console.log('Tarea antes de actualizar:', taskToUpdate);
+      console.log(`Cambiando estado de "${taskToUpdate.status}" a "${newStatus}"`);
       
       try {
         // Llamar al API usando el método específico para actualizar estados
@@ -123,21 +133,40 @@ export default function DashboardPage() {
         console.log("Tarea actualizada con éxito:", updatedTask);
         
         // Verificar que la respuesta tenga toda la información necesaria
-        if (updatedTask && updatedTask.id && updatedTask.status) {
-          // Actualizar la tarea en el estado con los datos reales del servidor
-          setTasks(prev => prev.map(task => 
-            task.id === taskId ? updatedTask : task
-          ));
-            toast.success(`Estado actualizado a: ${
-            newStatus === 'in_progress' ? 'En proceso' : 
-            newStatus === 'completed' ? 'Completada' : 
-            'Pendiente'
-          }`, { id: `status-update-${taskId}` });
+        if (updatedTask && updatedTask.id && updatedTask.status === newStatus) {
+          console.log("Actualizando estado en el dashboard con tarea:", updatedTask);
+          
+          // Asegurar que la UI se actualice correctamente con el nuevo estado
+          setTasks(prevTasks => {
+            return prevTasks.map(task => 
+              task.id === taskId ? {
+                ...task,
+                ...updatedTask,
+                // Asegurar que el estado es el correcto aunque la API devuelva algo diferente
+                status: newStatus,
+                status_display: STATUS_MAPPING[newStatus]
+              } : task
+            );
+          });
+            
+          toast.success(`Estado actualizado a: ${STATUS_MAPPING[newStatus]}`, 
+            { id: `status-update-${taskId}` });
         } else {
-          console.warn("La respuesta del servidor está incompleta:", updatedTask);
-          // Recargar todas las tareas para asegurar consistencia
-          await fetchTasks();
-          toast.success('Tarea actualizada. Recargando datos...', { id: `status-update-${taskId}` });
+          console.warn("La respuesta del servidor es inválida o inconsistente:", updatedTask);
+          
+          // Asegurar que la UI se actualice correctamente aunque la respuesta del servidor sea incorrecta
+          setTasks(prevTasks => {
+            return prevTasks.map(task => 
+              task.id === taskId ? {
+                ...task,
+                status: newStatus,
+                status_display: STATUS_MAPPING[newStatus]
+              } : task
+            );
+          });
+          
+          toast.success(`Estado actualizado a: ${STATUS_MAPPING[newStatus]}`, 
+            { id: `status-update-${taskId}` });
         }
       } catch (err) {
         console.error("Error al actualizar estado:", err);

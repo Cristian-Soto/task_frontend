@@ -1,5 +1,4 @@
-﻿// filepath: d:\task_frontend\src\service\task.ts
-import api from "./index";
+﻿import api from "./index";
 
 // Definición de la interfaz Task según la API de Django
 export interface Task {
@@ -84,10 +83,38 @@ export const taskService = {
   getTask: async (id: number): Promise<Task> => {
     try {
       const response = await api.get(`/api/tasks/${id}/`);
-      return response.data;
+      console.log(`taskService - getTask(${id}): Respuesta recibida:`, response.data);
+      
+      const task = response.data;
+      
+      // Validar el status y obtener un valor seguro
+      const safeStatus = ['pending', 'in_progress', 'completed'].includes(task.status)
+        ? task.status as 'pending' | 'in_progress' | 'completed'
+        : 'pending';
+        
+      // Determinar el texto de visualización del estado
+      let statusDisplay = 'Pendiente';
+      if (task.status_display) {
+        statusDisplay = task.status_display;
+      } else if (safeStatus === 'pending') {
+        statusDisplay = STATUS_MAPPING.pending;
+      } else if (safeStatus === 'in_progress') {
+        statusDisplay = STATUS_MAPPING.in_progress;
+      } else if (safeStatus === 'completed') {
+        statusDisplay = STATUS_MAPPING.completed;
+      }
+      
+      return {
+        ...task,
+        status: safeStatus,
+        status_display: statusDisplay,
+        priority: ['baja', 'media', 'alta'].includes(task.priority) 
+          ? task.priority 
+          : 'media'
+      };
     } catch (error) {
       console.error(`taskService - getTask(${id}) - Error:`, error);
-      throw new Error(`Error al obtener la tarea con ID: ${id}`);
+      throw new Error("Error al obtener la información de la tarea.");
     }
   },
 
@@ -216,11 +243,50 @@ export const taskService = {
     try {
       console.log(`Iniciando actualización del estado para tarea ${id} a ${status}`);
       
+      // Validar que el estado sea válido
       if (!['pending', 'in_progress', 'completed'].includes(status)) {
         throw new Error(`Estado inválido: ${status}`);
       }
       
-      return await taskService.updateTask(id, { status });
+      try {
+        // Primero obtener la tarea actual para tener todos los datos
+        const currentTask = await taskService.getTask(id);
+        console.log(`Estado actual de la tarea ${id}: ${currentTask.status}`);
+        
+        // Solo actualizamos si el estado es diferente
+        if (currentTask.status !== status) {
+          // Actualizar solo el estado, manteniendo el resto de campos
+          const updatedTask = await taskService.updateTask(id, { status });
+          
+          // Asegurar que el estado devuelto sea el solicitado (por si la API devuelve otra cosa)
+          if (updatedTask.status !== status) {
+            console.warn(`El servidor devolvió un estado diferente al solicitado: ${updatedTask.status} != ${status}`);
+            updatedTask.status = status;
+            updatedTask.status_display = STATUS_MAPPING[status];
+          }
+          
+          console.log(`Estado actualizado correctamente para tarea ${id}: ${updatedTask.status}`);
+          return updatedTask;
+        } else {
+          console.log(`La tarea ${id} ya tiene el estado ${status}, no hay cambios`);
+          return currentTask;
+        }
+      } catch (error) {
+        console.error(`Error durante la actualización de estado:`, error);
+        
+        // Intentar un enfoque alternativo si el primero falla
+        const simpleUpdate = await api.patch(`/api/tasks/${id}/`, { status });
+        const result = simpleUpdate.data;
+        
+        // Asegurar que el resultado tiene el estado correcto
+        if (result && result.id) {
+          result.status = status; // Forzar el estado correcto
+          result.status_display = STATUS_MAPPING[status];
+          return result;
+        }
+        
+        throw error; // Si tampoco funciona, propagar el error
+      }
     } catch (error) {
       console.error(`Error al actualizar estado de tarea ${id}:`, error);
       throw error;

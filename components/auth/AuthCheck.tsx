@@ -13,13 +13,15 @@ interface AuthCheckProps {
  * y renovarlo si es necesario para mantener la sesión activa.
  */
 export default function AuthCheck({ children }: AuthCheckProps) {
-  const [isChecking, setIsChecking] = useState(true);
+  const [isChecking, setIsChecking] = useState(false);
 
   useEffect(() => {
     // Verificar autenticación al cargar el componente
     const checkAuth = async () => {
       try {
-        await authService.checkAuth();
+        console.log("Verificando autenticación en AuthCheck");
+        const isAuthenticated = await authService.checkAuth();
+        console.log("¿Usuario autenticado?", isAuthenticated);
       } catch (error) {
         console.error("Error verificando autenticación:", error);
       } finally {

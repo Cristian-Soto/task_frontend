@@ -8,7 +8,19 @@ export default function Home() {
 
   useEffect(() => {
     // Redireccionar a la página de dashboard automáticamente
-    router.replace("/dashboard");
+    console.log("Redirigiendo a /dashboard desde página principal");
+    
+    // Verificar si hay un token antes de redirigir
+    const token = localStorage.getItem('access_token') || 
+                  document.cookie.split('; ').find(row => row.startsWith('access_token='))?.split('=')[1];
+                  
+    if (token) {
+      console.log("Token encontrado, redirigiendo a dashboard");
+      router.replace("/dashboard");
+    } else {
+      console.log("No hay token, redirigiendo a login");
+      router.replace("/login");
+    }
   }, [router]);
 
   // Esta página no renderiza nada visible ya que redirecciona inmediatamente

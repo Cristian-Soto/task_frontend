@@ -12,17 +12,23 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  // Verificar que el usuario está autenticado
+  
+  // Verificar que el usuario está autenticado  
   useEffect(() => {
     // Ya no es necesario hacer esta verificación aquí porque el middleware se encargará
     // de redirigir al usuario si no está autenticado, pero lo dejamos como una capa adicional
     // de seguridad en el lado del cliente
     const checkAuth = async () => {
+      console.log("[Dashboard Layout] Verificando autenticación");
       const token = localStorage.getItem('access_token') || 
                     document.cookie.split('; ').find(row => row.startsWith('access_token='))?.split('=')[1];
       
+      console.log("[Dashboard Layout] Token encontrado:", !!token);
       if (!token) {
+        console.log("[Dashboard Layout] No hay token, redirigiendo a login");
         router.push('/login');
+      } else {
+        console.log("[Dashboard Layout] Token válido, cargando dashboard");
       }
     };
     

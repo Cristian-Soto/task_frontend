@@ -33,8 +33,13 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onStatusCha
       return;
     }
     
-    // Llamar a la función de actualización
-    onStatusChange(task.id, newStatus);
+    // Solo llamar a la función si el estado realmente cambió
+    if (task.status !== newStatus) {
+      console.log(`Actualizando estado de tarea ${task.id} de ${task.status} a ${newStatus}`);
+      onStatusChange(task.id, newStatus);
+    } else {
+      console.log(`El estado de la tarea ${task.id} ya es ${newStatus}, no hay cambio`);
+    }
   };
   // Asegurarnos de que la prioridad sea válida
   const priority = ['baja', 'media', 'alta'].includes(task.priority) ? task.priority : 'media';

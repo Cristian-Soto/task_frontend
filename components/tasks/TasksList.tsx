@@ -75,30 +75,52 @@ const TasksList: React.FC<TasksListProps> = ({
     }
   };  const handleStatusChange = async (id: number, status: Task['status']) => {
     try {
-      console.log(`TasksList: Actualizando estado de tarea ${id} a ${status}`);
-        // Mostrar toast de carga
+      // Encontrar la tarea que estamos actualizando
+      const taskToUpdate = tasks.find(task => task.id === id);
+      
+      if (!taskToUpdate) {
+        console.error(`No se encontró la tarea con ID ${id}`);
+        toast.error('Error: No se encontró la tarea', { id: `status-${id}` });
+        return;
+      }
+      
+      console.log(`TasksList: Actualizando estado de tarea ${id} de ${taskToUpdate.status} a ${status}`);
+      
+      // Mostrar toast de carga
       toast.loading(`Cambiando estado a ${status === 'pending' ? 'Pendiente' : 
                                         status === 'in_progress' ? 'En proceso' : 
                                         'Completada'}...`, 
                    { id: `status-${id}` });
       
+      // Guardar el estado actual para poder revertir en caso de error
+      const originalStatus = taskToUpdate.status;
+      
       // Aplicar el cambio optimista en la UI local para una experiencia más fluida
-      // Esto no afecta las tareas originales, solo la visualización local
-      const updatedLocalTasks = tasks.map(task => 
+      const optimisticTasks = tasks.map(task => 
         task.id === id ? { ...task, status } : task
       );
       
-      // Llamar a la función de actualización
-      await onUpdateTask(id, { status });
-      
-      // Verificar que la tarea se haya actualizado correctamente
-      const updatedTask = updatedLocalTasks.find(task => task.id === id);
-      console.log(`TasksList: Estado actualizado localmente:`, updatedTask);
+      try {
+        // Llamar a la función de actualización
+        await onUpdateTask(id, { status });
+        
+        console.log(`TasksList: Estado actualizado correctamente para tarea ${id} a ${status}`);
+        
         // Mostrar confirmación
-      toast.success(`Estado cambiado a ${status === 'pending' ? 'Pendiente' : 
-                                      status === 'in_progress' ? 'En proceso' : 
-                                      'Completada'}`, 
-                  { id: `status-${id}` });
+        toast.success(`Estado cambiado a ${status === 'pending' ? 'Pendiente' : 
+                                        status === 'in_progress' ? 'En proceso' : 
+                                        'Completada'}`, 
+                    { id: `status-${id}` });
+      } catch (error) {
+        console.error(`Error al actualizar el estado de la tarea ${id}:`, error);
+        
+        // Revertir el cambio optimista en caso de error
+        const revertedTasks = tasks.map(task => 
+          task.id === id ? { ...task, status: originalStatus } : task
+        );
+        
+        toast.error('Error al actualizar el estado', { id: `status-${id}` });
+      }
     } catch (error) {
       toast.error('Error al actualizar el estado', { id: `status-${id}` });
       console.error('Error en handleStatusChange:', error);
