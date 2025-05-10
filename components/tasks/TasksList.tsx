@@ -18,8 +18,7 @@ const TasksList: React.FC<TasksListProps> = ({
   onCreateTask,
   onUpdateTask,
   onDeleteTask 
-}) => {
-  const [isFormOpen, setIsFormOpen] = useState(false);
+}) => {  const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [currentTask, setCurrentTask] = useState<Task | undefined>(undefined);
   const [taskToDelete, setTaskToDelete] = useState<number | null>(null);
@@ -34,20 +33,26 @@ const TasksList: React.FC<TasksListProps> = ({
     setCurrentTask(undefined);
     setIsFormOpen(false);
   };
-
   const handleSubmitForm = async (taskData: Omit<Task, 'id' | 'created_at' | 'user'>) => {
     try {
+      console.log("TasksList: Procesando envío de formulario con datos:", taskData);
+      
       if (currentTask) {
+        console.log(`TasksList: Actualizando tarea existente ${currentTask.id}`);
         await onUpdateTask(currentTask.id, taskData);
         toast.success('Tarea actualizada correctamente');
       } else {
+        console.log("TasksList: Creando nueva tarea");
         await onCreateTask(taskData);
         toast.success('Tarea creada correctamente');
       }
       handleCloseForm();
-    } catch (error) {
-      toast.error('Error al guardar la tarea');
-      console.error(error);
+    } catch (error: any) {
+      console.error("Error al procesar el formulario de tarea:", error);
+      
+      // Mostrar un mensaje de error más específico si está disponible
+      const errorMessage = error.message || 'Error al guardar la tarea';
+      toast.error(errorMessage);
     }
   };
 
@@ -68,37 +73,62 @@ const TasksList: React.FC<TasksListProps> = ({
         console.error(error);
       }
     }
-  };
-
-  const handleStatusChange = async (id: number, status: Task['status']) => {
+  };  const handleStatusChange = async (id: number, status: Task['status']) => {
     try {
+      console.log(`TasksList: Actualizando estado de tarea ${id} a ${status}`);
+        // Mostrar toast de carga
+      toast.loading(`Cambiando estado a ${status === 'pending' ? 'Pendiente' : 
+                                        status === 'in_progress' ? 'En proceso' : 
+                                        'Completada'}...`, 
+                   { id: `status-${id}` });
+      
+      // Aplicar el cambio optimista en la UI local para una experiencia más fluida
+      // Esto no afecta las tareas originales, solo la visualización local
+      const updatedLocalTasks = tasks.map(task => 
+        task.id === id ? { ...task, status } : task
+      );
+      
+      // Llamar a la función de actualización
       await onUpdateTask(id, { status });
-      toast.success('Estado actualizado correctamente');
+      
+      // Verificar que la tarea se haya actualizado correctamente
+      const updatedTask = updatedLocalTasks.find(task => task.id === id);
+      console.log(`TasksList: Estado actualizado localmente:`, updatedTask);
+        // Mostrar confirmación
+      toast.success(`Estado cambiado a ${status === 'pending' ? 'Pendiente' : 
+                                      status === 'in_progress' ? 'En proceso' : 
+                                      'Completada'}`, 
+                  { id: `status-${id}` });
     } catch (error) {
-      toast.error('Error al actualizar el estado');
-      console.error(error);
+      toast.error('Error al actualizar el estado', { id: `status-${id}` });
+      console.error('Error en handleStatusChange:', error);
     }
   };
-
+  // Mapeo entre valores de filtro en español y valores de la API
+  const filterToApiStatusMap: Record<string, string> = {
+    'pendiente': 'pending',
+    'en_progreso': 'in_progress',
+    'completada': 'completed'
+  };
+  
   const filteredTasks = filter === 'todas' 
     ? tasks 
-    : tasks.filter(task => task.status === filter);
+    : tasks.filter(task => task.status === filterToApiStatusMap[filter] || task.status === filter);
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 className="text-2xl font-bold text-gray-700">Mis Tareas</h2>
         
-        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-          <select
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">          <select
             value={filter}
             onChange={(e) => setFilter(e.target.value as any)}
             className="px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm text-gray-600"
           >
             <option value="todas">Todas</option>
-            <option value="pendiente">Pendientes</option>
-            <option value="en_progreso">En Progreso</option>
-            <option value="completada">Completadas</option>
+            <option value="pending">Pendientes</option>
+            <option value="in_progress">En Proceso</option>
+            <option value="completed">Completadas</option>
           </select>
           
           <button

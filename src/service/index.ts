@@ -3,8 +3,8 @@ import axios, { AxiosRequestConfig } from "axios";
 import { CookieUtils } from "../utils/cookies";
 import { TokenUtils } from "../utils/tokenUtils";
 
-const isDevelopment = process.env.NODE_ENV === 'development'
-const API_URL = isDevelopment ? 'http://localhost:8000': process.env.NEXT_PUBLIC_API_URL
+const isDevelopment = process.env.NODE_ENV === 'development';
+const API_URL = isDevelopment ? 'http://localhost:8000' : process.env.NEXT_PUBLIC_API_URL;
 const api = axios.create({
   baseURL: API_URL,
   headers: {
@@ -82,8 +82,10 @@ api.interceptors.response.use(
       url: response.config.url,
       status: response.status,
       data: response.data,
-    })
-    return response  },  (error) => {
+    });
+    return response;
+  },
+  (error) => {
     // Si el error es 401 Unauthorized pero no estamos intentando renovar el token
     if (error.response?.status === 401 && !error.config.url?.includes('/token/refresh/')) {
       // Intentar refrescar el token solo una vez
@@ -153,5 +155,81 @@ api.interceptors.response.use(
     return Promise.reject(error)
   }
 )
+
+// Interceptor de respuesta para verificar y validar las tareas
+api.interceptors.response.use(
+  (response) => {
+    // Verificar si la respuesta es para una actualización de tarea
+    const url = response.config.url;
+    if (url && url.includes('/api/tasks/')) {
+      // Si se está obteniendo o modificando tareas
+      if (response.config.method === 'get') {
+        // Para solicitudes GET que devuelven un array de tareas
+        if (Array.isArray(response.data)) {
+          console.log(`Interceptor: Respuesta con ${response.data.length} tareas recibidas`);
+          
+          // Validar cada tarea en el array
+          response.data = response.data.map(task => {
+            // Asegurar que cada tarea tenga los campos requeridos con valores válidos
+            return {
+              ...task,
+              status: ['pendiente', 'en_progreso', 'completada'].includes(task.status) ? task.status : 'pendiente',
+              priority: ['baja', 'media', 'alta'].includes(task.priority) ? task.priority : 'media'
+            };
+          });
+        } 
+        // Para solicitudes GET que devuelven una única tarea
+        else if (response.data && typeof response.data === 'object' && response.data.id) {
+          console.log(`Interceptor: Respuesta con datos de tarea individual recibida:`, response.data.id);
+          
+          // Validar y corregir la tarea individual
+          const task = response.data;
+          response.data = {
+            ...task,
+            status: ['pendiente', 'en_progreso', 'completada'].includes(task.status) ? task.status : 'pendiente',
+            priority: ['baja', 'media', 'alta'].includes(task.priority) ? task.priority : 'media'
+          };
+        }
+      }
+      // Para actualizaciones de tareas (PUT/PATCH)
+      else if (response.config.method === 'patch' || response.config.method === 'put') {
+        console.log('Interceptor: Respuesta de actualización de tarea recibida:', response.data);
+        
+        // Verificar y corregir los datos de la tarea actualizada
+        if (response.data && typeof response.data === 'object') {
+          const task = response.data;
+          
+          // Verificar que los valores críticos estén presentes y sean válidos
+          if (task.status === undefined || task.status === null || !['pendiente', 'en_progreso', 'completada'].includes(task.status)) {
+            console.warn(`Interceptor: Estado de tarea inválido o faltante detectado: ${task.status}`);
+            
+            // Si no hay estado o es inválido, intentamos obtenerlo de los datos de la solicitud
+            const requestData = JSON.parse(response.config.data || '{}');
+            if (requestData && requestData.status && ['pendiente', 'en_progreso', 'completada'].includes(requestData.status)) {
+              console.log('Interceptor: Usando el estado de la solicitud:', requestData.status);
+              task.status = requestData.status;
+            } else {
+              // Si no podemos recuperarlo, usamos un valor por defecto
+              task.status = 'pendiente';
+            }
+          }
+          
+          // Validar y corregir prioridad si es necesario
+          if (task.priority === undefined || task.priority === null || !['baja', 'media', 'alta'].includes(task.priority)) {
+            console.warn(`Interceptor: Prioridad de tarea inválida o faltante detectada: ${task.priority}`);
+            task.priority = 'media'; // Usar un valor por defecto
+          }
+          
+          response.data = task;
+        }
+      }
+    }
+    
+    return response;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 export default api;

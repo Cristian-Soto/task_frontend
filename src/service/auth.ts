@@ -60,21 +60,54 @@ export const authService = {
         "Error al iniciar sesión. Por favor, verifica tus credenciales."
       );
     }
-  },
+  },  register: async (first_name: string, last_name: string, username: string, email: string, password: string, password2: string) => {    try {
+      console.log("Enviando datos de registro:", { 
+        first_name, 
+        last_name, 
+        username, 
+        email, 
+        password: password ? "***" : undefined,
+        password2: password2 ? "***" : undefined
+      });
 
-  register: async (name: string, email: string, password: string) => {
-    try {
-      const response = await api.post("/api/register/", { name, email, password });
+      const response = await api.post("/api/register/", { 
+        first_name, 
+        last_name, 
+        username, 
+        email, 
+        password,
+        password2
+      });
       return response.data;
     } catch (error: any) {
       console.error("authService - register - Error:", error);
+      
+      // Imprimir datos completos de error para depuración
+      if (error.response) {
+        console.error("Respuesta del servidor:", error.response.status);
+        console.error("Datos del error:", error.response.data);
+        console.error("Headers:", error.response.headers);
+      }
+      
       // Si el error tiene un mensaje detallado del servidor, lo usamos
       if (error.response && error.response.data) {
         const serverError = error.response.data;
+        console.log("Detalles del error:", serverError);
+        
         if (serverError.detail) {
           throw new Error(serverError.detail);
         } else if (serverError.email) {
           throw new Error(`Email: ${serverError.email}`);
+        } else if (serverError.username) {
+          throw new Error(`Usuario: ${serverError.username}`);
+        } else if (typeof serverError === 'object') {
+          // Si el error es un objeto pero no tiene campos específicos
+          const errorMessages = Object.entries(serverError)
+            .map(([field, msgs]) => `${field}: ${Array.isArray(msgs) ? msgs.join(', ') : msgs}`)
+            .join('; ');
+          throw new Error(errorMessages || "Error en los datos enviados");
+        }else if (serverError.username) {
+          throw new Error(`Usuario: ${serverError.username}`);
         }
       }
       // Si no hay un mensaje específico, usamos uno genérico

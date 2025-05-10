@@ -7,11 +7,15 @@ import { authService } from '@/service/auth'
 import toast from 'react-hot-toast'
 
 export default function RegisterForm() {
-  const [name, setName] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [nameError, setNameError] = useState('')
+  const [firstNameError, setFirstNameError] = useState('')
+  const [lastNameError, setLastNameError] = useState('')
+  const [usernameError, setUsernameError] = useState('')
   const [emailError, setEmailError] = useState('')
   const [passwordError, setPasswordError] = useState('')
   const [confirmPasswordError, setConfirmPasswordError] = useState('')
@@ -29,7 +33,9 @@ export default function RegisterForm() {
     e.preventDefault()
     
     // Reiniciar todos los errores
-    setNameError('')
+    setFirstNameError('')
+    setLastNameError('')
+    setUsernameError('')
     setEmailError('')
     setPasswordError('')
     setConfirmPasswordError('')
@@ -39,9 +45,23 @@ export default function RegisterForm() {
     let hasError = false
     
     // Validar nombre
-    if (name.trim().length < 3) {
-      setNameError('El nombre debe tener al menos 3 caracteres')
+    if (firstName.trim().length < 2) {
+      setFirstNameError('El nombre debe tener al menos 2 caracteres')
       toast.error('El nombre es demasiado corto')
+      hasError = true
+    }
+    
+    // Validar apellido
+    if (lastName.trim().length < 2) {
+      setLastNameError('El apellido debe tener al menos 2 caracteres')
+      toast.error('El apellido es demasiado corto')
+      hasError = true
+    }
+    
+    // Validar nombre de usuario
+    if (username.trim().length < 4) {
+      setUsernameError('El nombre de usuario debe tener al menos 4 caracteres')
+      toast.error('El nombre de usuario es demasiado corto')
       hasError = true
     }
 
@@ -77,13 +97,14 @@ export default function RegisterForm() {
       const loadingToast = toast.loading('Creando cuenta...')
       
       // Usar el servicio de autenticación para registrar al usuario
-      await authService.register(name, email, password)
+      // Pasar confirmPassword como password2 que es lo que espera la API
+      await authService.register(firstName, lastName, username, email, password, confirmPassword)
       
       // Cerrar notificación de carga
       toast.dismiss(loadingToast)
       
-      // Mostrar notificación de éxito
-      toast.success('¡Cuenta creada exitosamente!')
+      // Mostrar notificación de óxito
+      toast.success('Cuenta creada exitosamente!')
       
       // Registro exitoso, redirigir al login
       router.push('/login?registered=true')
@@ -96,28 +117,55 @@ export default function RegisterForm() {
   }
 
   const getInputClass = (hasError: boolean) => {
-    return `border ${hasError ? 'border-red-500 bg-red-50' : 'border-gray-300'} p-2 rounded transition-colors focus:outline-none focus:ring-2 ${hasError ? 'focus:ring-red-200' : 'focus:ring-blue-200'} focus:border-transparent text-gray-700 placeholder-gray-500 placeholder-opacity-100 font-medium text-base`;
+    return `border ${hasError ? 'border-red-500 bg-red-50' : 'border-gray-300'} p-3 rounded transition-colors focus:outline-none focus:ring-2 ${hasError ? 'focus:ring-red-200' : 'focus:ring-blue-200'} focus:border-transparent text-base placeholder-gray-500 placeholder-opacity-100 font-medium text-gray-700`
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md w-full max-w-sm">
-      <h1 className="text-2xl font-bold mb-6 text-center">Crear cuenta</h1>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-6 rounded-lg shadow-md w-96 bg-white">
+      <h1 className="text-2xl font-bold text-center mb-2 text-blue-700">Crear cuenta</h1>
       
-      {error && <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-3 rounded mb-4">{error}</div>}
+      {error && <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-3 rounded">{error}</div>}
       
-      <div className="mb-4">
+      <div className="flex flex-col gap-1">
         <input
           type="text"
-          placeholder="Nombre completo"
-          className={getInputClass(!!nameError)}
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          placeholder="Nombre"
+          className={getInputClass(!!firstNameError)}
+          value={firstName}
+          onChange={(e) => setFirstName(e.target.value)}
           required
+          style={{ fontSize: '1.05rem' }}
         />
-        {nameError && <p className="text-red-500 text-sm mt-1">{nameError}</p>}
+        {firstNameError && <p className="text-red-500 text-sm">{firstNameError}</p>}
       </div>
       
-      <div className="mb-4">
+      <div className="flex flex-col gap-1">
+        <input
+          type="text"
+          placeholder="Apellido"
+          className={getInputClass(!!lastNameError)}
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
+          required
+          style={{ fontSize: '1.05rem' }}
+        />
+        {lastNameError && <p className="text-red-500 text-sm">{lastNameError}</p>}
+      </div>
+      
+      <div className="flex flex-col gap-1">
+        <input
+          type="text"
+          placeholder="Nombre de usuario"
+          className={getInputClass(!!usernameError)}
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+          style={{ fontSize: '1.05rem' }}
+        />
+        {usernameError && <p className="text-red-500 text-sm">{usernameError}</p>}
+      </div>
+      
+      <div className="flex flex-col gap-1">
         <input
           type="email"
           placeholder="Correo electrónico"
@@ -125,11 +173,12 @@ export default function RegisterForm() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          style={{ fontSize: '1.05rem' }}
         />
-        {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
+        {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
       </div>
       
-      <div className="mb-4">
+      <div className="flex flex-col gap-1">
         <input
           type="password"
           placeholder="Contraseña"
@@ -137,11 +186,12 @@ export default function RegisterForm() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
+          style={{ fontSize: '1.05rem' }}
         />
-        {passwordError && <p className="text-red-500 text-sm mt-1">{passwordError}</p>}
+        {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
       </div>
       
-      <div className="mb-6">
+      <div className="flex flex-col gap-1">
         <input
           type="password"
           placeholder="Confirmar contraseña"
@@ -149,13 +199,14 @@ export default function RegisterForm() {
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
+          style={{ fontSize: '1.05rem' }}
         />
-        {confirmPasswordError && <p className="text-red-500 text-sm mt-1">{confirmPasswordError}</p>}
+        {confirmPasswordError && <p className="text-red-500 text-sm">{confirmPasswordError}</p>}
       </div>
       
       <button
         type="submit"
-        className={`w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 mb-4 flex justify-center items-center ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+        className={`bg-blue-600 text-white p-3 rounded font-medium hover:bg-blue-700 transition-colors mt-3 flex justify-center items-center ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
         disabled={loading}
       >
         {loading ? (
@@ -169,8 +220,10 @@ export default function RegisterForm() {
         ) : 'Registrarse'}
       </button>
       
+      <div className="my-2 border-t border-gray-200"></div>
+      
       <p className="text-center text-sm text-gray-600">
-        ¿Ya tienes una cuenta?{' '}
+        Ya tienes una cuenta?{' '}
         <Link href="/login" className="text-blue-600 hover:underline font-medium">
           Inicia sesión
         </Link>

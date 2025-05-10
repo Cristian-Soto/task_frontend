@@ -29,12 +29,37 @@ export default function DashboardPage() {
     };
     
     fetchUserData();
-  }, []);
-  const fetchTasks = async () => {
+  }, []);  const fetchTasks = async () => {
     try {
       setTasksLoading(true);
+      
+      // Obtener las tareas del servidor
       const tasksData = await taskService.getTasks();
-      setTasks(tasksData);
+      
+      // Verificar que los datos recibidos sean válidos
+      if (Array.isArray(tasksData) && tasksData.length >= 0) {
+        console.log("Tareas cargadas correctamente:", tasksData.length);
+        
+        // Validar que cada tarea tenga los campos necesarios
+        const validatedTasks = tasksData.map(task => {          // Asegurar que cada tarea tenga valores válidos para status y priority
+          return {
+            ...task,
+            status: ['pending', 'in_progress', 'completed'].includes(task.status) 
+              ? task.status 
+              : 'pending',
+            priority: ['baja', 'media', 'alta'].includes(task.priority)
+              ? task.priority
+              : 'media'
+          };
+        });
+        
+        // Actualizar el estado con las tareas validadas
+        setTasks(validatedTasks);
+      } else {
+        console.error("Formato de datos incorrecto recibido del servidor:", tasksData);
+        toast.error("Datos de tareas recibidos en formato incorrecto");
+        setTasks([]); // Establecer un array vacío como fallback
+      }
     } catch (error) {
       console.error("Error al cargar las tareas:", error);
       toast.error("No se pudieron cargar las tareas");
@@ -46,11 +71,10 @@ export default function DashboardPage() {
   useEffect(() => {
     fetchTasks();
   }, []);
-
   // Calcular estadísticas de tareas
-  const completedTasks = tasks.filter(task => task.status === 'completada').length;
-  const pendingTasks = tasks.filter(task => task.status === 'pendiente').length;
-  const inProgressTasks = tasks.filter(task => task.status === 'en_progreso').length;
+  const completedTasks = tasks.filter(task => task.status === 'completed').length;
+  const pendingTasks = tasks.filter(task => task.status === 'pending').length;
+  const inProgressTasks = tasks.filter(task => task.status === 'in_progress').length;
 
   // Datos para las cards de estadísticas
   const stats = [
@@ -65,9 +89,68 @@ export default function DashboardPage() {
   const handleOpenForm = () => {
     setIsFormOpen(true);
   };
-
   const handleCloseForm = () => {
     setIsFormOpen(false);
+  };  // Función para actualizar el estado de una tarea
+  const handleTaskStatusChange = async (taskId: number, newStatus: Task['status']) => {
+    try {
+      // Validar que el estado sea válido
+      if (!['pending', 'in_progress', 'completed'].includes(newStatus)) {
+        console.error(`Estado inválido proporcionado: ${newStatus}`);
+        toast.error('Estado inválido');
+        return;
+      }
+      
+      console.log(`Dashboard: Actualizando estado de tarea ${taskId} a ${newStatus}`);
+      
+      // Mostrar notificación de cargando
+      toast.loading(`Actualizando estado a ${newStatus === 'in_progress' ? 'En proceso' : 
+                                          newStatus === 'completed' ? 'Completada' : 
+                                          'Pendiente'}...`, 
+                   { id: `status-update-${taskId}` });
+      
+      // Guardar la tarea actual para poder restaurarla en caso de error
+      const currentTasks = [...tasks];
+      
+      // Actualizar optimistamente en la UI para una experiencia más fluida
+      setTasks(prev => prev.map(task => 
+        task.id === taskId ? { ...task, status: newStatus } : task
+      ));
+      
+      try {
+        // Llamar al API usando el método específico para actualizar estados
+        const updatedTask = await taskService.updateTaskStatus(taskId, newStatus);
+        console.log("Tarea actualizada con éxito:", updatedTask);
+        
+        // Verificar que la respuesta tenga toda la información necesaria
+        if (updatedTask && updatedTask.id && updatedTask.status) {
+          // Actualizar la tarea en el estado con los datos reales del servidor
+          setTasks(prev => prev.map(task => 
+            task.id === taskId ? updatedTask : task
+          ));
+            toast.success(`Estado actualizado a: ${
+            newStatus === 'in_progress' ? 'En proceso' : 
+            newStatus === 'completed' ? 'Completada' : 
+            'Pendiente'
+          }`, { id: `status-update-${taskId}` });
+        } else {
+          console.warn("La respuesta del servidor está incompleta:", updatedTask);
+          // Recargar todas las tareas para asegurar consistencia
+          await fetchTasks();
+          toast.success('Tarea actualizada. Recargando datos...', { id: `status-update-${taskId}` });
+        }
+      } catch (err) {
+        console.error("Error al actualizar estado:", err);
+        // Restaurar el estado anterior en caso de error
+        setTasks(currentTasks);
+        toast.error('Error al actualizar el estado', { id: `status-update-${taskId}` });
+      }
+    } catch (error) {
+      console.error("Error general al manejar actualización:", error);
+      toast.error('Error al procesar la actualización');
+      // Revertir cambio en caso de error general
+      await fetchTasks();
+    }
   };
 
   const handleSubmitForm = async (taskData: Omit<Task, 'id' | 'created_at' | 'user'>) => {
@@ -91,8 +174,8 @@ export default function DashboardPage() {
           <div key={index} className="bg-white rounded-lg shadow-md p-6 transition-transform hover:scale-105">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-gray-500 text-sm">{stat.title}</p>
-                <h3 className="text-3xl font-bold mt-1">{stat.value}</h3>
+                <p className="text-gray-600 text-sm">{stat.title}</p>
+                <h3 className="text-3xl text-gray-500 font-bold mt-1">{stat.value}</h3>
               </div>
               <div className={`${stat.color} p-3 rounded-lg`}>
                 <Image src={stat.icon} alt={stat.title} width={24} height={24} className="text-white" />
@@ -107,10 +190,7 @@ export default function DashboardPage() {
         {/* Sección de tareas recientes */}
         <div className="lg:col-span-2 bg-white rounded-lg shadow-md p-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold">Tareas Recientes</h2>
-            <Link href="/dashboard/tasks" className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
-              Ver todas
-            </Link>
+            <h2 className="text-xl font-bold text-gray-700">Tareas Recientes</h2>
           </div>
           
           {tasksLoading ? (
@@ -123,21 +203,32 @@ export default function DashboardPage() {
               ))}
             </div>
           ) : recentTasks.length > 0 ? (
-            <div className="space-y-3">
-              {recentTasks.map(task => (
-                <div key={task.id} className="flex justify-between items-center p-3 border rounded-lg hover:bg-gray-50">
+            <div className="space-y-3">              {recentTasks.map(task => (                <div key={task.id} className="flex justify-between items-center p-3 border rounded-lg hover:bg-gray-50 text-gray-600">
                   <div className="flex-grow">
                     <h3 className="font-medium">{task.title}</h3>
-                    <p className="text-sm text-gray-500 truncate">{task.description}</p>
+                    <div className="flex items-center mt-1">
+                      <span className={`mr-2 px-2 py-0.5 rounded-full text-xs font-medium
+                        ${task.priority === 'baja' ? 'bg-blue-100 text-blue-800' : 
+                          task.priority === 'media' ? 'bg-yellow-100 text-yellow-800' : 
+                          'bg-red-100 text-red-800'}`}>
+                        {task.priority === 'baja' ? 'Baja' : 
+                         task.priority === 'media' ? 'Media' : 'Alta'}
+                      </span>
+                      <p className="text-sm text-gray-500 truncate">{task.description}</p>
+                    </div>
                   </div>
-                  <div className="ml-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium 
-                      ${task.status === 'pendiente' ? 'bg-gray-100 text-gray-800' : 
-                        task.status === 'en_progreso' ? 'bg-indigo-100 text-indigo-800' : 
-                        'bg-green-100 text-green-800'}`}>
-                      {task.status === 'pendiente' ? 'Pendiente' : 
-                       task.status === 'en_progreso' ? 'En progreso' : 'Completada'}
-                    </span>
+                  <div className="ml-4">                    <select 
+                      value={task.status || 'pending'}
+                      onChange={(e) => handleTaskStatusChange(task.id, e.target.value as Task['status'])}
+                      className={`px-3 py-1 rounded-md text-xs font-medium cursor-pointer
+                        ${task.status === 'pending' ? 'bg-gray-100 text-gray-800' : 
+                          task.status === 'in_progress' ? 'bg-indigo-100 text-indigo-800' : 
+                          'bg-green-100 text-green-800'}`}
+                    >
+                      <option value="pending">Pendiente</option>
+                      <option value="in_progress">En proceso</option>
+                      <option value="completed">Completada</option>
+                    </select>
                   </div>
                 </div>
               ))}
@@ -165,7 +256,7 @@ export default function DashboardPage() {
         
         {/* Sección de información del usuario */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-bold mb-4">Información del Usuario</h2>
+          <h2 className="text-xl font-bold mb-4 text-gray-700">Información del Usuario</h2>
           {loading ? (
             <div className="animate-pulse space-y-3">
               <div className="h-20 w-20 bg-gray-200 rounded-full mx-auto mb-4"></div>
@@ -179,7 +270,7 @@ export default function DashboardPage() {
               <div className="h-20 w-20 rounded-full bg-indigo-600 flex items-center justify-center text-white text-2xl font-bold mb-4">
                 {user.first_name ? user.first_name.charAt(0).toUpperCase() : user.username?.charAt(0).toUpperCase() || '?'}
               </div>
-              <h3 className="text-lg font-medium">
+              <h3 className="text-lg font-medium text-gray-600">
                 {user.first_name && user.last_name 
                   ? `${user.first_name} ${user.last_name}`
                   : user.username || 'Usuario'
@@ -189,15 +280,15 @@ export default function DashboardPage() {
               <div className="w-full space-y-2">
                 <div className="flex justify-between">
                   <span className="text-gray-500">Usuario desde</span>
-                  <span>Mayo 2023</span>
+                  <span className="text-gray-400">Mayo 2025</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Tareas totales</span>
-                  <span>{tasks.length}</span>
+                  <span className="text-gray-400">{tasks.length}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Tareas completadas</span>
-                  <span>{completedTasks}</span>
+                  <span className="text-gray-400">{completedTasks}</span>
                 </div>
               </div>
             </div>

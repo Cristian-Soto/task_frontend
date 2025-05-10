@@ -2,9 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { userService } from "@/service/user";
+import dynamic from 'next/dynamic';
 
-const Header = () => {
-  const [user, setUser] = useState<any>(null);
+// Importación dinámica del componente de fecha con la opción ssr=false para evitar renderizado en servidor
+const ClientDate = dynamic(() => import('./ClientDate'), { 
+  ssr: false,
+  loading: () => <p className="text-gray-600">Cargando fecha...</p>
+});
+
+const Header = () => {  const [user, setUser] = useState<any>(null);
   const [greeting, setGreeting] = useState("¡Bienvenido!");
 
   useEffect(() => {
@@ -21,6 +27,7 @@ const Header = () => {
   }, []);
 
   useEffect(() => {
+    // Solo configuramos el saludo basado en la hora actual
     const date = new Date();
     const currentHour = date.getHours();
 
@@ -36,22 +43,13 @@ const Header = () => {
   const userName = user?.first_name 
     ? `${user.first_name}${user.last_name ? ' ' + user.last_name : ''}` 
     : user?.username || "";
-
-  const today = new Date().toLocaleDateString('es-ES', { 
-    weekday: 'long', 
-    day: 'numeric', 
-    month: 'long', 
-    year: 'numeric' 
-  });
-
   return (
     <header className="py-6 px-8 bg-white border-b border-gray-200">
       <div className="flex flex-col md:flex-row md:items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">
+        <div>          <h1 className="text-2xl font-bold text-gray-800">
             {greeting} {userName ? userName : ''}
           </h1>
-          <p className="text-gray-600 capitalize">{today}</p>
+          <ClientDate />
         </div>
         <div className="mt-4 md:mt-0">
           {user && (

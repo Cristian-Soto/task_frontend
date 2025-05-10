@@ -1,0 +1,25 @@
+          // Verificar que los valores críticos estén presentes y sean válidos
+          if (task.status === undefined || task.status === null || !['pendiente', 'en_progreso', 'completada'].includes(task.status)) {
+            console.warn(`Interceptor: Estado de tarea inválido o faltante detectado: ${task.status}`);
+            
+            // Si no hay estado o es inválido, intentamos obtenerlo de los datos de la solicitud
+            try {
+              const requestData = JSON.parse(response.config.data || '{}');
+              if (requestData && requestData.status && ['pendiente', 'en_progreso', 'completada'].includes(requestData.status)) {
+                console.log('Interceptor: Usando el estado de la solicitud:', requestData.status);
+                task.status = requestData.status;
+              } else {
+                // Si no podemos recuperarlo, usamos un valor por defecto
+                task.status = 'pendiente';
+              }
+            } catch (err) {
+              console.error('Error al parsear datos de solicitud:', err);
+              task.status = 'pendiente';
+            }
+          }
+          
+          // Validar y corregir prioridad si es necesario
+          if (task.priority === undefined || task.priority === null || !['baja', 'media', 'alta'].includes(task.priority)) {
+            console.warn(`Interceptor: Prioridad de tarea inválida o faltante detectada: ${task.priority}`);
+            task.priority = 'media'; // Usar un valor por defecto
+          }
