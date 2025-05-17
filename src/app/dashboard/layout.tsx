@@ -5,15 +5,32 @@ import { useRouter } from "next/navigation";
 import Sidebar from "@components/dashboard/Sidebar";
 import Header from "@components/dashboard/Header";
 import AuthCheck from "@components/auth/AuthCheck";
+import { useTaskStore } from "@/hooks/useTaskStore";
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
-}) {
-  const router = useRouter();
+}) {  const router = useRouter();
+  const { fetchTasks } = useTaskStore();
   
-  // Verificar que el usuario está autenticado  
+  // Cargar tareas una sola vez al montar el componente
+  useEffect(() => {
+    console.log("[Dashboard Layout] Cargando tareas iniciales");
+    // Utilizamos un flag en sessionStorage para evitar cargas duplicadas
+    const tasksLoaded = sessionStorage.getItem('tasksLoaded');
+    
+    if (!tasksLoaded) {
+      fetchTasks().then(() => {
+        sessionStorage.setItem('tasksLoaded', 'true');
+        console.log("[Dashboard Layout] Tareas cargadas correctamente");
+      });
+    } else {
+      console.log("[Dashboard Layout] Las tareas ya fueron cargadas previamente");
+    }
+  }, [fetchTasks]);
+  
+  // Verificar que el usuario está autenticado
   useEffect(() => {
     // Ya no es necesario hacer esta verificación aquí porque el middleware se encargará
     // de redirigir al usuario si no está autenticado, pero lo dejamos como una capa adicional
@@ -34,6 +51,7 @@ export default function DashboardLayout({
     
     checkAuth();
   }, [router]);
+
   return (
     <AuthCheck>
       <div className="flex h-screen bg-gray-50">

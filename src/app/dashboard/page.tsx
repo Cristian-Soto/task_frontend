@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { userService } from '@/service/user';
-import { taskService, Task, STATUS_MAPPING } from '@/service/task';
+import { Task } from '@/service/task';
+import { useTaskStore } from '@/hooks/useTaskStore';
 import Image from 'next/image';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
@@ -11,10 +12,30 @@ import TaskForm from '@components/tasks/TaskForm';
 export default function DashboardPage() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [tasksLoading, setTasksLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  // Usar el store de Zustand
+  const { 
+    tasks, 
+    stats, 
+    loading: tasksLoading, 
+    fetchTasks, 
+    updateTaskStatus,
+    createTask 
+  } = useTaskStore();
   
+  // Estados para la paginación de tareas recientes
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 3; // Número fijo para tareas recientes
+
+  // Convertir stats a array para el mapeo
+  const statsArray = [
+    { title: 'Total de Tareas', value: stats.total, icon: '/icons/total.svg', color: 'bg-blue-100' },
+    { title: 'Completadas', value: stats.completed, icon: '/icons/completed.svg', color: 'bg-green-100' },
+    { title: 'Pendientes', value: stats.pending, icon: '/icons/pending.svg', color: 'bg-yellow-100' },
+    { title: 'En Progreso', value: stats.inProgress, icon: '/icons/in-progress.svg', color: 'bg-purple-100' },
+  ];
+
+  // Cargar usuario
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -27,196 +48,110 @@ export default function DashboardPage() {
         setLoading(false);
       }
     };
-      fetchUserData();
-  }, []);  
-  
-  const fetchTasks = async () => {
-    try {
-      setTasksLoading(true);
-      
-      // Obtener las tareas del servidor
-      const tasksData = await taskService.getTasks();
-      
-      // Verificar que los datos recibidos sean válidos
-      if (Array.isArray(tasksData) && tasksData.length >= 0) {
-        console.log("Tareas cargadas correctamente:", tasksData.length);
-        
-        // Validar que cada tarea tenga los campos necesarios
-        const validatedTasks = tasksData.map(task => {          // Asegurar que cada tarea tenga valores válidos para status y priority
-          return {
-            ...task,
-            status: ['pending', 'in_progress', 'completed'].includes(task.status) 
-              ? task.status 
-              : 'pending',
-            priority: ['baja', 'media', 'alta'].includes(task.priority)
-              ? task.priority
-              : 'media'
-          };
-        });
-        
-        // Actualizar el estado con las tareas validadas
-        setTasks(validatedTasks);
-      } else {
-        console.error("Formato de datos incorrecto recibido del servidor:", tasksData);
-        toast.error("Datos de tareas recibidos en formato incorrecto");
-        setTasks([]); // Establecer un array vacío como fallback
-      }
-    } catch (error) {
-      console.error("Error al cargar las tareas:", error);
-      toast.error("No se pudieron cargar las tareas");
-    } finally {
-      setTasksLoading(false);
-    }
-  };
-  
-  useEffect(() => {
-    fetchTasks();
+    fetchUserData();
   }, []);
-  // Calcular estadísticas de tareas
-  const completedTasks = tasks.filter(task => task.status === 'completed').length;
-  const pendingTasks = tasks.filter(task => task.status === 'pending').length;
-  const inProgressTasks = tasks.filter(task => task.status === 'in_progress').length;
-
-  // Datos para las cards de estadísticas
-  const stats = [
-    { title: "Tareas Completadas", value: completedTasks.toString(), icon: "/file.svg", color: "bg-green-500" },
-    { title: "Tareas Pendientes", value: pendingTasks.toString(), icon: "/window.svg", color: "bg-yellow-500" },
-    { title: "Tareas En Proceso", value: inProgressTasks.toString(), icon: "/file.svg", color: "bg-blue-500" },
-    { title: "Total Tareas", value: tasks.length.toString(), icon: "/globe.svg", color: "bg-purple-500" },
-  ];
+  // Cargar tareas inicialmente
+  useEffect(() => {
+    const tasksAlreadyLoaded = sessionStorage.getItem('tasksLoaded');
+    if (!tasksAlreadyLoaded || tasks.length === 0) {
+      console.log("[DashboardPage] Cargando tareas...");
+      fetchTasks().then(() => {
+        sessionStorage.setItem('tasksLoaded', 'true');
+      });
+    } else {
+      console.log("[DashboardPage] Las tareas ya estaban cargadas");
+    }
+  }, [fetchTasks, tasks.length]);
   // Obtener las últimas 3 tareas
-  const recentTasks = [...tasks].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 3);
-
-  const handleOpenForm = () => {
-    setIsFormOpen(true);
+  const sortedTasks = [...tasks]
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    
+  // Calcular total de páginas para tareas recientes
+  const totalTasks = sortedTasks.length;
+  const totalPages = Math.ceil(totalTasks / itemsPerPage) || 1;
+  
+  // Obtener las tareas para la página actual
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, totalTasks);
+  const recentTasks = sortedTasks.slice(startIndex, endIndex);
+  
+  // Manejar el cambio de página
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
   };
-  const handleCloseForm = () => {
-    setIsFormOpen(false);
-  };  // Función para actualizar el estado de una tarea
+
+  const handleOpenForm = () => setIsFormOpen(true);
+  const handleCloseForm = () => setIsFormOpen(false);
+
   const handleTaskStatusChange = async (taskId: number, newStatus: Task['status']) => {
+    const toastId = `status-update-${taskId}`;
+    toast.loading('Actualizando estado...', { id: toastId });
+
+    // Validar que el estado sea válido antes de enviarlo
+    if (!['pending', 'in_progress', 'completed'].includes(newStatus)) {
+        console.error(`Estado inválido detectado: ${newStatus}`);
+        toast.error('Estado inválido, no se puede actualizar', { id: toastId });
+        return;
+    }
+
     try {
-      // Validar que el estado sea válido
-      if (!['pending', 'in_progress', 'completed'].includes(newStatus)) {
-        console.error(`Estado inválido proporcionado: ${newStatus}`);
-        toast.error('Estado inválido');
-        return;
-      }
-      
-      console.log(`Dashboard: Actualizando estado de tarea ${taskId} a ${newStatus}`);
-      
-      // Mostrar notificación de cargando
-      toast.loading(`Actualizando estado a ${newStatus === 'in_progress' ? 'En proceso' : 
-                                          newStatus === 'completed' ? 'Completada' : 
-                                          'Pendiente'}...`, 
-                   { id: `status-update-${taskId}` });
-      
-      // Guardar la tarea actual para poder restaurarla en caso de error
-      const currentTasks = [...tasks];
-      
-      // Aplicar actualización optimista para mejor experiencia de usuario
-      const tasksBeforeUpdate = [...tasks];
-      const taskToUpdate = tasksBeforeUpdate.find(t => t.id === taskId);
-      
-      if (!taskToUpdate) {
-        console.error(`No se encontró la tarea con ID ${taskId}`);
-        toast.error('Error: No se encontró la tarea', { id: `status-update-${taskId}` });
-        return;
-      }
-      
-      // Mostrar logs para depuración
-      console.log('Tarea antes de actualizar:', taskToUpdate);
-      console.log(`Cambiando estado de "${taskToUpdate.status}" a "${newStatus}"`);
-      
-      try {
-        // Llamar al API usando el método específico para actualizar estados
-        const updatedTask = await taskService.updateTaskStatus(taskId, newStatus);
-        console.log("Tarea actualizada con éxito:", updatedTask);
-        
-        // Verificar que la respuesta tenga toda la información necesaria
-        if (updatedTask && updatedTask.id && updatedTask.status === newStatus) {
-          console.log("Actualizando estado en el dashboard con tarea:", updatedTask);
-          
-          // Asegurar que la UI se actualice correctamente con el nuevo estado
-          setTasks(prevTasks => {
-            return prevTasks.map(task => 
-              task.id === taskId ? {
-                ...task,
-                ...updatedTask,
-                // Asegurar que el estado es el correcto aunque la API devuelva algo diferente
-                status: newStatus,
-                status_display: STATUS_MAPPING[newStatus]
-              } : task
-            );
-          });
-            
-          toast.success(`Estado actualizado a: ${STATUS_MAPPING[newStatus]}`, 
-            { id: `status-update-${taskId}` });
-        } else {
-          console.warn("La respuesta del servidor es inválida o inconsistente:", updatedTask);
-          
-          // Asegurar que la UI se actualice correctamente aunque la respuesta del servidor sea incorrecta
-          setTasks(prevTasks => {
-            return prevTasks.map(task => 
-              task.id === taskId ? {
-                ...task,
-                status: newStatus,
-                status_display: STATUS_MAPPING[newStatus]
-              } : task
-            );
-          });
-          
-          toast.success(`Estado actualizado a: ${STATUS_MAPPING[newStatus]}`, 
-            { id: `status-update-${taskId}` });
-        }
-      } catch (err) {
-        console.error("Error al actualizar estado:", err);
-        // Restaurar el estado anterior en caso de error
-        setTasks(currentTasks);
-        toast.error('Error al actualizar el estado', { id: `status-update-${taskId}` });
-      }
+        await updateTaskStatus(taskId, newStatus);
+        toast.success('Estado actualizado', { id: toastId });
+
+        // Recargar las estadísticas después de actualizar el estado
+        fetchTasks();
     } catch (error) {
-      console.error("Error general al manejar actualización:", error);
-      toast.error('Error al procesar la actualización');
-      // Revertir cambio en caso de error general
-      await fetchTasks();
+        console.error("Error al actualizar estado:", error);
+        toast.error('Error al actualizar el estado', { id: toastId });
     }
   };
 
-  const handleSubmitForm = async (taskData: Omit<Task, 'id' | 'created_at' | 'user'>) => {
+  const handleCreateTask = async (taskData: Omit<Task, 'id' | 'created_at' | 'user'>) => {
     try {
-      await taskService.createTask(taskData);
-      toast.success('Tarea creada correctamente');
+      await createTask(taskData);
+      toast.success('Tarea creada exitosamente');
       handleCloseForm();
-      // Recargar tareas después de crear una nueva
-      fetchTasks();
     } catch (error) {
       console.error("Error al crear la tarea:", error);
-      toast.error('Error al guardar la tarea');
+      toast.error('Error al crear la tarea');
     }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Cards de estadísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
-          <div key={index} className="bg-white rounded-lg shadow-md p-6 transition-transform hover:scale-105">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-gray-600 text-sm">{stat.title}</p>
-                <h3 className="text-3xl text-gray-500 font-bold mt-1">{stat.value}</h3>
+    <div className="space-y-8">
+      {/* Grid de estadísticas */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {statsArray.map((stat, index) => (
+          <div key={index} className={`${stat.color} rounded-lg shadow-md p-6`}>
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <Image
+                  src={stat.icon}
+                  alt={stat.title}
+                  width={48}
+                  height={48}
+                  className="w-12 h-12 text-gray-700"
+                />
               </div>
-              <div className={`${stat.color} p-3 rounded-lg`}>
-                <Image src={stat.icon} alt={stat.title} width={24} height={24} className="text-white" />
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-600 truncate">
+                    {stat.title}
+                  </dt>
+                  <dd className="flex items-baseline">
+                    <div className="text-2xl font-semibold text-gray-900">
+                      {stat.value}
+                    </div>
+                  </dd>
+                </dl>
               </div>
             </div>
           </div>
         ))}
       </div>
       
-      {/* Secciones adicionales */}
+      {/* Sección de tareas recientes */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Sección de tareas recientes */}
         <div className="lg:col-span-2 bg-white rounded-lg shadow-md p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-bold text-gray-700">Tareas Recientes</h2>
@@ -230,9 +165,10 @@ export default function DashboardPage() {
                   <div className="h-3 bg-gray-200 rounded w-1/2"></div>
                 </div>
               ))}
-            </div>
-          ) : recentTasks.length > 0 ? (
-            <div className="space-y-3">              {recentTasks.map(task => (                <div key={task.id} className="flex justify-between items-center p-3 border rounded-lg hover:bg-gray-50 text-gray-600">
+            </div>          ) : recentTasks.length > 0 ? (
+            <div className="space-y-3">
+              {recentTasks.map(task => (
+                <div key={task.id} className="flex justify-between items-center p-3 border rounded-lg hover:bg-gray-50 text-gray-600">
                   <div className="flex-grow">
                     <h3 className="font-medium">{task.title}</h3>
                     <div className="flex items-center mt-1">
@@ -246,8 +182,9 @@ export default function DashboardPage() {
                       <p className="text-sm text-gray-500 truncate">{task.description}</p>
                     </div>
                   </div>
-                  <div className="ml-4">                    <select 
-                      value={task.status || 'pending'}
+                  <div className="ml-4">
+                    <select 
+                      value={task.status}
                       onChange={(e) => handleTaskStatusChange(task.id, e.target.value as Task['status'])}
                       className={`px-3 py-1 rounded-md text-xs font-medium cursor-pointer
                         ${task.status === 'pending' ? 'bg-gray-100 text-gray-800' : 
@@ -262,6 +199,62 @@ export default function DashboardPage() {
                 </div>
               ))}
               
+              {/* Paginación para tareas recientes */}
+              {totalPages > 1 && (
+                <div className="flex justify-center items-center mt-4">
+                  <nav className="flex items-center space-x-1" aria-label="Paginación de tareas recientes">
+                    {/* Botón Anterior */}
+                    <button 
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className={`p-1 rounded-md ${
+                        currentPage === 1 
+                          ? 'text-gray-300 cursor-not-allowed' 
+                          : 'text-gray-600 hover:bg-gray-100'
+                      }`}
+                      aria-label="Página anterior"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                    
+                    {/* Números de página */}
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <button
+                        key={page}
+                        onClick={() => handlePageChange(page)}
+                        className={`w-8 h-8 flex items-center justify-center rounded-md text-sm ${
+                          page === currentPage
+                            ? 'bg-indigo-600 text-white'
+                            : 'text-gray-700 hover:bg-gray-100'
+                        }`}
+                        aria-current={page === currentPage ? 'page' : undefined}
+                        aria-label={`Página ${page}`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                    
+                    {/* Botón Siguiente */}
+                    <button 
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      className={`p-1 rounded-md ${
+                        currentPage === totalPages 
+                          ? 'text-gray-300 cursor-not-allowed' 
+                          : 'text-gray-600 hover:bg-gray-100'
+                      }`}
+                      aria-label="Página siguiente"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  </nav>
+                </div>
+              )}
+              
               <div className="mt-4 text-center">
                 <Link href="/dashboard/tasks" className="inline-flex items-center justify-center px-4 py-2 border border-indigo-600 rounded-md text-indigo-600 hover:bg-indigo-50">
                   Gestionar todas las tareas
@@ -269,7 +262,8 @@ export default function DashboardPage() {
               </div>
             </div>
           ) : (
-            <div className="text-center py-8">              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="text-center py-8">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
               <p className="text-gray-500 mb-4">No tienes tareas creadas todavía</p>
@@ -282,7 +276,7 @@ export default function DashboardPage() {
             </div>
           )}
         </div>
-        
+
         {/* Sección de información del usuario */}
         <div className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-xl font-bold mb-4 text-gray-700">Información del Usuario</h2>
@@ -291,8 +285,6 @@ export default function DashboardPage() {
               <div className="h-20 w-20 bg-gray-200 rounded-full mx-auto mb-4"></div>
               <div className="h-5 bg-gray-200 rounded w-1/2 mx-auto mb-2"></div>
               <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto mb-4"></div>
-              <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-              <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
             </div>
           ) : user ? (
             <div className="flex flex-col items-center">
@@ -308,28 +300,27 @@ export default function DashboardPage() {
               <p className="text-gray-500 mb-4">{user.email}</p>
               <div className="w-full space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Usuario desde</span>
-                  <span className="text-gray-400">Mayo 2025</span>
-                </div>
-                <div className="flex justify-between">
                   <span className="text-gray-500">Tareas totales</span>
-                  <span className="text-gray-400">{tasks.length}</span>
+                  <span className="text-gray-400">{stats.total}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500">Tareas completadas</span>
-                  <span className="text-gray-400">{completedTasks}</span>
+                  <span className="text-gray-400">{stats.completed}</span>
                 </div>
               </div>
             </div>
           ) : (
-            <p className="text-center text-gray-500">No se pudo cargar la información del usuario</p>          )}
+            <p className="text-center text-gray-500">No se pudo cargar la información del usuario</p>
+          )}
         </div>
-      </div>      {/* Form Modal */}
+      </div>
+
+      {/* Modal de formulario */}
       {isFormOpen && (
         <div className="fixed inset-0 z-10 overflow-y-auto backdrop-blur-sm bg-black/30 flex items-center justify-center px-4">
           <div onClick={(e) => e.stopPropagation()} className="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl">
             <TaskForm
-              onSubmit={handleSubmitForm}
+              onSubmit={handleCreateTask}
               onCancel={handleCloseForm}
             />
           </div>

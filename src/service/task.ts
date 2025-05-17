@@ -26,53 +26,110 @@ export const PRIORITY_MAPPING = {
   alta: 'Alta'
 };
 
-export const taskService = {
+export const taskService = {  
   // Obtener todas las tareas del usuario actual
   getTasks: async (): Promise<Task[]> => {
     try {
       const response = await api.get("/api/tasks/");
       
-      // Verificar y validar los datos recibidos
+      // Función para procesar una tarea individual y asegurar formato correcto
+      const processTask = (task: any): Task => {
+        // Validar el status y obtener un valor seguro
+        const safeStatus = ['pending', 'in_progress', 'completed'].includes(task.status)
+          ? task.status as 'pending' | 'in_progress' | 'completed'
+          : 'pending';
+          
+        // Determinar el texto de visualización del estado
+        let statusDisplay = 'Pendiente';
+        if (task.status_display) {
+          statusDisplay = task.status_display;
+        } else if (safeStatus === 'pending') {
+          statusDisplay = STATUS_MAPPING.pending;
+        } else if (safeStatus === 'in_progress') {
+          statusDisplay = STATUS_MAPPING.in_progress;
+        } else if (safeStatus === 'completed') {
+          statusDisplay = STATUS_MAPPING.completed;
+        }
+          
+        return {
+          id: task.id,
+          title: task.title || 'Sin título',
+          description: task.description || '',
+          status: safeStatus,
+          status_display: statusDisplay,
+          priority: ['baja', 'media', 'alta'].includes(task.priority) 
+            ? task.priority 
+            : 'media',
+          created_at: task.created_at || new Date().toISOString(),
+          due_date: task.due_date,
+          user: task.user
+        };
+      };
+      
+      // CASO 1: Si es un array directamente
       if (Array.isArray(response.data)) {
         console.log(`taskService - getTasks: ${response.data.length} tareas obtenidas`);
-        
-        // Validar cada tarea para asegurarnos de que tenga los campos requeridos
-        return response.data.map(task => {
-          // Validar el status y obtener un valor seguro
-          const safeStatus = ['pending', 'in_progress', 'completed'].includes(task.status)
-            ? task.status as 'pending' | 'in_progress' | 'completed'
-            : 'pending';
-            
-          // Determinar el texto de visualización del estado
-          let statusDisplay = 'Pendiente';
-          if (task.status_display) {
-            statusDisplay = task.status_display;
-          } else if (safeStatus === 'pending') {
-            statusDisplay = STATUS_MAPPING.pending;
-          } else if (safeStatus === 'in_progress') {
-            statusDisplay = STATUS_MAPPING.in_progress;
-          } else if (safeStatus === 'completed') {
-            statusDisplay = STATUS_MAPPING.completed;
-          }
-            
-          return {
-            id: task.id,
-            title: task.title || 'Sin título',
-            description: task.description || '',
-            status: safeStatus,
-            status_display: statusDisplay,
-            priority: ['baja', 'media', 'alta'].includes(task.priority) 
-              ? task.priority 
-              : 'media',
-            created_at: task.created_at || new Date().toISOString(),
-            due_date: task.due_date,
-            user: task.user
-          };
-        });
+        return response.data.map(processTask);
       } 
       
+      // CASO 2: Si es una respuesta paginada con array en results
+      if (response.data && response.data.results && Array.isArray(response.data.results)) {
+        console.log(`taskService - getTasks: Respuesta paginada con ${response.data.results.length} tareas obtenidas`);
+        return response.data.results.map(processTask);
+      }
+        // CASO 3: Si es un objeto con tasks o items como propiedad
+      const potentialArrayProperties = ['tasks', 'items', 'data', 'content'];
+      for (const prop of potentialArrayProperties) {
+        if (response.data && response.data[prop]) {
+          // Si la propiedad es directamente un array
+          if (Array.isArray(response.data[prop])) {
+            console.log(`taskService - getTasks: Encontrado array en propiedad '${prop}' con ${response.data[prop].length} tareas`);
+            return response.data[prop].map(processTask);
+          }
+          
+          // Si la propiedad es un objeto que a su vez contiene un array en una subpropiedad común
+          if (typeof response.data[prop] === 'object' && response.data[prop]) {
+            // Comprobar subpropiedades comunes
+            for (const subProp of ['items', 'results', 'tasks', 'list']) {
+              if (Array.isArray(response.data[prop][subProp])) {
+                console.log(`taskService - getTasks: Encontrado array en sub-propiedad '${prop}.${subProp}' con ${response.data[prop][subProp].length} tareas`);
+                return response.data[prop][subProp].map(processTask);
+              }
+            }
+          }
+        }
+      }
+      
+      // CASO 4: Si el objeto tiene una estructura inesperada pero contiene propiedades de tarea
+      if (response.data && typeof response.data === 'object') {
+        // Si el objeto tiene propiedades típicas de una colección de tareas numeradas (0, 1, 2...)
+        const numericKeys = Object.keys(response.data).filter(key => !isNaN(Number(key)));
+        if (numericKeys.length > 0) {
+          console.log(`taskService - getTasks: Encontrado objeto con ${numericKeys.length} tareas numeradas`);
+          
+          const taskArray = numericKeys.map(key => response.data[key]);
+          return taskArray.map(processTask);
+        }
+        
+        // Si parece ser una sola tarea (tiene id y otras propiedades típicas)
+        if (response.data.id && (response.data.title || response.data.status)) {
+          console.log(`taskService - getTasks: Encontrada una sola tarea con ID ${response.data.id}`);
+          return [processTask(response.data)];
+        }
+      }
+      
+      // Inspección detallada de la estructura recibida para facilitar la depuración
       console.error("taskService - getTasks: Formato de datos incorrecto", response.data);
-      return []; // Devolver un array vacío si no se recibió un array
+      if (response.data) {
+        if (typeof response.data === 'object') {
+          console.log("taskService - getTasks: Propiedades del objeto recibido:", Object.keys(response.data));
+          console.log("taskService - getTasks: Muestra del contenido del objeto:", JSON.stringify(response.data).substring(0, 200) + "...");
+        } else {
+          console.log("taskService - getTasks: Tipo de datos recibido:", typeof response.data);
+        }
+      }
+      
+      return []; // Devolver un array vacío si no se pudo procesar la respuesta
     } catch (error) {
       console.error("taskService - getTasks - Error:", error);
       throw new Error("Error al obtener las tareas del usuario.");
@@ -186,11 +243,22 @@ export const taskService = {
       throw new Error("Error al crear la tarea.");
     }
   },
-
   // Actualizar una tarea existente
   updateTask: async (id: number, taskData: Partial<Task>): Promise<Task> => {
     try {
       console.log(`taskService - updateTask: Actualizando tarea ${id} con datos:`, taskData);
+      
+      // Primero obtenemos la tarea original para preservar datos importantes
+      let originalTask: Task | null = null;
+      try {
+        const originalResponse = await api.get(`/api/tasks/${id}/`);
+        if (originalResponse.data && originalResponse.data.id) {
+          originalTask = originalResponse.data;
+          console.log(`taskService - updateTask: Datos originales de la tarea ${id}:`, originalTask);
+        }
+      } catch (getError) {
+        console.warn(`No se pudo obtener la tarea original ${id}:`, getError);
+      }
       
       // Validar que los campos enviados sean válidos
       const validatedData: Partial<Task> = {};
@@ -216,6 +284,9 @@ export const taskService = {
           throw new Error(`Prioridad inválida: ${taskData.priority}`);
         }
         validatedData.priority = taskData.priority;
+      } else if (originalTask && originalTask.priority) {
+        // Si no se proporcionó una prioridad y tenemos la tarea original, preservamos su prioridad
+        validatedData.priority = originalTask.priority;
       }
       
       if (taskData.description !== undefined) {
@@ -227,8 +298,7 @@ export const taskService = {
       }
       
       // Enviar la actualización a la API
-      console.log(`Enviando datos validados para actualizar tarea ${id}:`, validatedData);
-      const updateResponse = await api.patch(`/api/tasks/${id}/`, validatedData);
+      console.log(`Enviando datos validados para actualizar tarea ${id}:`, validatedData);      const updateResponse = await api.patch(`/api/tasks/${id}/`, validatedData);
       
       console.log(`Tarea ${id} actualizada con éxito:`, updateResponse.data);
       return updateResponse.data;
@@ -240,58 +310,35 @@ export const taskService = {
 
   // Actualizar solo el estado de una tarea
   updateTaskStatus: async (id: number, status: Task['status']): Promise<Task> => {
-    try {
-      console.log(`Iniciando actualización del estado para tarea ${id} a ${status}`);
-      
-      // Validar que el estado sea válido
-      if (!['pending', 'in_progress', 'completed'].includes(status)) {
+    console.log(`taskService - updateTaskStatus: Actualizando tarea ${id} a estado ${status}`);
+
+    // Validar que el estado sea válido antes de enviarlo
+    if (!['pending', 'in_progress', 'completed'].includes(status)) {
+        console.error(`Estado inválido detectado: ${status}`);
         throw new Error(`Estado inválido: ${status}`);
-      }
-      
-      try {
-        // Primero obtener la tarea actual para tener todos los datos
-        const currentTask = await taskService.getTask(id);
-        console.log(`Estado actual de la tarea ${id}: ${currentTask.status}`);
+    }    try {
+        const response = await api.patch(`/api/tasks/${id}/`, { status });
         
-        // Solo actualizamos si el estado es diferente
-        if (currentTask.status !== status) {
-          // Actualizar solo el estado, manteniendo el resto de campos
-          const updatedTask = await taskService.updateTask(id, { status });
-          
-          // Asegurar que el estado devuelto sea el solicitado (por si la API devuelve otra cosa)
-          if (updatedTask.status !== status) {
-            console.warn(`El servidor devolvió un estado diferente al solicitado: ${updatedTask.status} != ${status}`);
-            updatedTask.status = status;
-            updatedTask.status_display = STATUS_MAPPING[status];
-          }
-          
-          console.log(`Estado actualizado correctamente para tarea ${id}: ${updatedTask.status}`);
-          return updatedTask;
-        } else {
-          console.log(`La tarea ${id} ya tiene el estado ${status}, no hay cambios`);
-          return currentTask;
-        }
-      } catch (error) {
-        console.error(`Error durante la actualización de estado:`, error);
-        
-        // Intentar un enfoque alternativo si el primero falla
-        const simpleUpdate = await api.patch(`/api/tasks/${id}/`, { status });
-        const result = simpleUpdate.data;
-        
-        // Asegurar que el resultado tiene el estado correcto
-        if (result && result.id) {
-          result.status = status; // Forzar el estado correcto
-          result.status_display = STATUS_MAPPING[status];
-          return result;
-        }
-        
-        throw error; // Si tampoco funciona, propagar el error
-      }
+        if (!response.data || !response.data.id) {
+            throw new Error('Respuesta inválida del servidor');
+        }// Validar y asegurar que los datos devueltos sean correctos
+        const validatedTask: Task = {
+            ...response.data,
+            status: ['pending', 'in_progress', 'completed'].includes(response.data.status) 
+                ? response.data.status 
+                : status,
+            priority: response.data.priority && ['baja', 'media', 'alta'].includes(response.data.priority)
+                ? response.data.priority
+                : 'media', // Usar media solo como último recurso
+            status_display: STATUS_MAPPING[status as keyof typeof STATUS_MAPPING]
+        };
+
+        console.log(`taskService - updateTaskStatus: Tarea ${id} actualizada correctamente`);
+        return validatedTask;
     } catch (error) {
-      console.error(`Error al actualizar estado de tarea ${id}:`, error);
-      throw error;
-    }
-  },
+        console.error(`taskService - updateTaskStatus - Error al actualizar tarea ${id}:`, error);
+        throw new Error(`Error al actualizar el estado de la tarea: ${error}`);
+    }  },
 
   // Eliminar una tarea
   deleteTask: async (id: number): Promise<void> => {

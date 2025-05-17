@@ -167,27 +167,64 @@ api.interceptors.response.use(
         // Para solicitudes GET que devuelven un array de tareas
         if (Array.isArray(response.data)) {
           console.log(`Interceptor: Respuesta con ${response.data.length} tareas recibidas`);
-          
-          // Validar cada tarea en el array
+            // Validar cada tarea en el array
           response.data = response.data.map(task => {
             // Asegurar que cada tarea tenga los campos requeridos con valores válidos
-            return {
+            // Aceptar estados tanto en inglés como en español
+            const validStatesES = ['pendiente', 'en_progreso', 'completada'];
+            const validStatesEN = ['pending', 'in_progress', 'completed'];
+            
+            let finalStatus = task.status;
+            if (validStatesEN.includes(task.status)) {
+              finalStatus = task.status;
+            } else if (validStatesES.includes(task.status)) {
+              // Mapear estados en español a inglés si es necesario
+              const statusMap = {
+                'pendiente': 'pending',
+                'en_progreso': 'in_progress',
+                'completada': 'completed'
+              };
+              finalStatus = statusMap[task.status as keyof typeof statusMap] || 'pending';
+            } else {
+              finalStatus = 'pending';
+            }
+              return {
               ...task,
-              status: ['pendiente', 'en_progreso', 'completada'].includes(task.status) ? task.status : 'pendiente',
-              priority: ['baja', 'media', 'alta'].includes(task.priority) ? task.priority : 'media'
+              status: finalStatus,
+              priority: task.priority && ['baja', 'media', 'alta'].includes(task.priority) ? task.priority : 'media'
             };
           });
         } 
         // Para solicitudes GET que devuelven una única tarea
         else if (response.data && typeof response.data === 'object' && response.data.id) {
           console.log(`Interceptor: Respuesta con datos de tarea individual recibida:`, response.data.id);
-          
-          // Validar y corregir la tarea individual
+            // Validar y corregir la tarea individual
           const task = response.data;
+          
+          // Aceptar estados tanto en inglés como en español
+          const validStatesES = ['pendiente', 'en_progreso', 'completada'];
+          const validStatesEN = ['pending', 'in_progress', 'completed'];
+          
+          // Determinar el estado final
+          let finalStatus = task.status;
+          if (validStatesEN.includes(task.status)) {
+            finalStatus = task.status;
+          } else if (validStatesES.includes(task.status)) {
+            // Mapear estados en español a inglés
+            const statusMap = {
+              'pendiente': 'pending',
+              'en_progreso': 'in_progress',
+              'completada': 'completed'
+            };
+            finalStatus = statusMap[task.status as keyof typeof statusMap] || 'pending';
+          } else {
+            finalStatus = 'pending';
+          }
+          
           response.data = {
             ...task,
-            status: ['pendiente', 'en_progreso', 'completada'].includes(task.status) ? task.status : 'pendiente',
-            priority: ['baja', 'media', 'alta'].includes(task.priority) ? task.priority : 'media'
+            status: finalStatus,
+            priority: task.priority && ['baja', 'media', 'alta'].includes(task.priority) ? task.priority : 'media'
           };
         }
       }
@@ -198,27 +235,71 @@ api.interceptors.response.use(
         // Verificar y corregir los datos de la tarea actualizada
         if (response.data && typeof response.data === 'object') {
           const task = response.data;
+            // Verificar que los valores críticos estén presentes y sean válidos
+          // Aceptar estados tanto en inglés como en español
+          const validStatesES = ['pendiente', 'en_progreso', 'completada'];
+          const validStatesEN = ['pending', 'in_progress', 'completed'];
           
-          // Verificar que los valores críticos estén presentes y sean válidos
-          if (task.status === undefined || task.status === null || !['pendiente', 'en_progreso', 'completada'].includes(task.status)) {
+          if (task.status && (validStatesEN.includes(task.status) || validStatesES.includes(task.status))) {
+            console.log(`Interceptor: Estado válido detectado: ${task.status}`);
+          } else {
             console.warn(`Interceptor: Estado de tarea inválido o faltante detectado: ${task.status}`);
             
-            // Si no hay estado o es inválido, intentamos obtenerlo de los datos de la solicitud
-            const requestData = JSON.parse(response.config.data || '{}');
-            if (requestData && requestData.status && ['pendiente', 'en_progreso', 'completada'].includes(requestData.status)) {
-              console.log('Interceptor: Usando el estado de la solicitud:', requestData.status);
-              task.status = requestData.status;
-            } else {
-              // Si no podemos recuperarlo, usamos un valor por defecto
-              task.status = 'pendiente';
+            // Intentar obtener el estado de los datos de la solicitud
+            try {
+                const requestData = JSON.parse(response.config.data || '{}');
+                if (requestData && requestData.status) {
+                    if (validStatesEN.includes(requestData.status) || validStatesES.includes(requestData.status)) {
+                        console.log('Interceptor: Usando el estado de la solicitud:', requestData.status);
+                        task.status = requestData.status;
+                    }
+                }
+            } catch (err) {
+                console.error('Error al parsear datos de solicitud:', err);
+            }
+            
+            // Si todavía no es válido, asignar un valor por defecto
+            if (!task.status || (!validStatesEN.includes(task.status) && !validStatesES.includes(task.status))) {
+                task.status = 'pending'; // Valor por defecto en inglés
+            }
+          }          // Validar y corregir prioridad si es necesario
+          const validPriorities = ['baja', 'media', 'alta'];
+          
+          if (task.priority && validPriorities.includes(task.priority)) {
+            console.log(`Interceptor: Prioridad válida detectada: ${task.priority}`);
+          } else {
+            console.warn(`Interceptor: Prioridad de tarea inválida o faltante detectada: ${task.priority}`);
+            
+            // Intentar obtener la prioridad de los datos de la solicitud
+            try {
+                const requestData = JSON.parse(response.config.data || '{}');
+                if (requestData && requestData.priority && validPriorities.includes(requestData.priority)) {
+                    console.log('Interceptor: Usando la prioridad de la solicitud:', requestData.priority);
+                    task.priority = requestData.priority;
+                } 
+                // Si no hay prioridad en la solicitud, intentar mantener la prioridad original
+                else if (!requestData.priority && task.id) {
+                    // No forzar el cambio a 'media' si no se está intentando actualizar la prioridad
+                    console.log('Interceptor: Manteniendo la prioridad original');
+                }
+            } catch (err) {
+                console.error('Error al parsear datos de solicitud:', err);
+            }
+            
+            // Solo asignar el valor por defecto si no hay prioridad en absoluto
+            if (!task.priority) {
+                task.priority = 'media';
             }
           }
           
-          // Validar y corregir prioridad si es necesario
-          if (task.priority === undefined || task.priority === null || !['baja', 'media', 'alta'].includes(task.priority)) {
-            console.warn(`Interceptor: Prioridad de tarea inválida o faltante detectada: ${task.priority}`);
-            task.priority = 'media'; // Usar un valor por defecto
-          }
+          // Log detallado de la tarea procesada
+          console.log('Interceptor: Tarea procesada:', {
+              id: task.id,
+              title: task.title,
+              status: task.status,
+              priority: task.priority,
+              status_display: task.status_display
+          });
           
           response.data = task;
         }

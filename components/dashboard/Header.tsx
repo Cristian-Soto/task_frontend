@@ -3,11 +3,12 @@
 import { useState, useEffect } from "react";
 import { userService } from "@/service/user";
 import dynamic from 'next/dynamic';
+import DarkModeToggle from './DarkModeToggle';
 
 // Importación dinámica del componente de fecha con la opción ssr=false para evitar renderizado en servidor
 const ClientDate = dynamic(() => import('./ClientDate'), { 
   ssr: false,
-  loading: () => <p className="text-gray-600">Cargando fecha...</p>
+  loading: () => <p className="text-gray-600 dark:text-gray-400">Cargando fecha...</p>
 });
 
 const Header = () => {  const [user, setUser] = useState<any>(null);
@@ -39,19 +40,18 @@ const Header = () => {  const [user, setUser] = useState<any>(null);
       setGreeting("¡Buenas noches!");
     }
   }, []);
-
   const userName = user?.first_name 
     ? `${user.first_name}${user.last_name ? ' ' + user.last_name : ''}` 
     : user?.username || "";
   return (
-    <header className="py-6 px-8 bg-white border-b border-gray-200">
+    <header className="py-6 px-8 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
       <div className="flex flex-col md:flex-row md:items-center justify-between">
-        <div>          <h1 className="text-2xl font-bold text-gray-800">
+        <div>          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
             {greeting} {userName ? userName : ''}
-          </h1>
-          <ClientDate />
+          </h1>          <ClientDate />
         </div>
-        <div className="mt-4 md:mt-0">
+        <div className="mt-4 md:mt-0 flex items-center space-x-4">
+          <DarkModeToggle />
           {user && (
             <div className="flex items-center">
               <div className="relative inline-block">
