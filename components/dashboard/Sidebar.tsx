@@ -60,11 +60,9 @@ const Sidebar = () => {
     router.push('/login');
   };
 
-  return (
-    <aside
-      className={`${
+  return (    <aside      className={`${
         collapsed ? "w-20" : "w-64"
-      } bg-gradient-to-b from-indigo-700 to-indigo-900 text-white transition-all duration-300 ease-in-out flex flex-col h-full`}
+      } bg-primary dark:bg-gray-800 text-primary-foreground transition-all duration-300 ease-in-out flex flex-col h-full border-r border-border`}
     >
       <div className="p-5 flex justify-between items-center">
         <div className={`${collapsed ? "hidden" : "block"}`}>
@@ -94,11 +92,10 @@ const Sidebar = () => {
             return (
               <Link
                 key={item.path}
-                href={item.path}
-                className={`flex items-center p-3 rounded-lg transition-colors ${
+                href={item.path}                className={`flex items-center p-3 rounded-lg transition-colors ${
                   isActive
-                    ? "bg-indigo-800 text-white"
-                    : "text-indigo-100 hover:bg-indigo-600"
+                    ? "bg-primary/20 text-primary-foreground font-medium"
+                    : "text-primary-foreground/80 hover:bg-primary/10"
                 }`}
               >
                 <span className="flex items-center justify-center">{item.icon}</span>
@@ -107,12 +104,9 @@ const Sidebar = () => {
             );
           })}
         </nav>
-      </div>
-
-      <div className="p-4 border-t border-indigo-800">
+      </div>      <div className="p-4 border-t border-border">
         <button
-          onClick={handleLogout}
-          className={`flex items-center p-3 rounded-lg transition-all hover:bg-indigo-600 w-full ${
+          onClick={handleLogout}className={`flex items-center p-3 rounded-lg transition-all hover:bg-primary/10 w-full ${
             collapsed ? "justify-center" : "justify-start"
           }`}
         >

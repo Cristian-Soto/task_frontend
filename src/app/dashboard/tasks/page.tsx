@@ -68,9 +68,7 @@ export default function TasksPage() {
       <header className="mb-8">
         <h1 className="text-3xl font-bold text-gray-700">Gestión de Tareas</h1>
         <p className="text-gray-600">Administra y organiza todas tus tareas en un solo lugar</p>
-      </header>
-
-      <div className="bg-white rounded-lg shadow-md p-6">
+      </header>      <div className="bg-card-background dark:bg-gray-800 rounded-lg shadow-md p-6">
         <TasksList
           tasks={tasks}
           isLoading={loading}

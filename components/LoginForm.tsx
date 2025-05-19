@@ -95,80 +95,82 @@ export default function LoginForm() {
       setLoading(false);
     }
   };
-
   const getInputClass = (hasError: boolean) => {
-    return `border ${hasError ? 'border-red-500 bg-red-50' : 'border-gray-300'} p-3 rounded transition-colors focus:outline-none focus:ring-2 ${hasError ? 'focus:ring-red-200' : 'focus:ring-blue-200'} focus:border-transparent text-base placeholder-gray-500 placeholder-opacity-100 font-medium text-gray-700`;
+    return `border ${hasError ? 'border-red-500 bg-red-50 dark:bg-red-900/30' : 'border-gray-300 dark:border-gray-600'} p-3 rounded transition-colors focus:outline-none focus:ring-2 ${hasError ? 'focus:ring-red-200 dark:focus:ring-red-800' : 'focus:ring-blue-200 dark:focus:ring-blue-800'} focus:border-transparent text-base placeholder-gray-500 dark:placeholder-gray-400 placeholder-opacity-100 font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700`;
   }
-
   return (
-    <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-      <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Iniciar Sesión</h2>
-      
-      {error && <div className="mb-4 p-2 bg-red-100 text-red-700 rounded">{error}</div>}
-      
-      <form onSubmit={handleSubmit}>
-        <div className="flex flex-col gap-1">
-          <input
-            type="email"
-            placeholder="Correo"
-            className={getInputClass(!!emailError)}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={{ fontSize: '1.05rem' }}
-          />
-          {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
+    <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+      <div className="w-full max-w-md p-8 space-y-6 bg-card-background border border-border rounded-lg shadow-lg">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold">Iniciar Sesión</h2>
+          <p className="mt-2 text-muted-foreground">
+            Ingresa tus credenciales para acceder
+          </p>
         </div>
-        
-        <div className="flex flex-col gap-1">
-          <input
-            type="password"
-            placeholder="Contraseña"
-            className={getInputClass(!!passwordError)}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={{ fontSize: '1.05rem' }}
-          />
-          {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
-        </div>
-        
-        <button 
-          type="submit" 
-          className={`bg-blue-600 text-white p-3 rounded font-medium hover:bg-blue-700 transition-colors mt-3 flex justify-center items-center ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
-          disabled={loading}
-        >
-          {loading ? (
-            <>
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Procesando...
-            </>
-          ) : 'Iniciar sesión'}
-        </button>
-        
-        <div className="my-2 border-t border-gray-200"></div>
-        
-        <p className="text-center text-sm text-gray-600">
-          ¿No tienes cuenta?{' '}
-          <Link href="/register" className="text-blue-600 hover:underline font-medium">
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium">
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 w-full px-4 py-2 border rounded-md bg-background text-foreground border-input focus:outline-none focus:ring-2 focus:ring-primary"
+              placeholder="usuario@ejemplo.com"
+              required
+            />
+            {emailError && <p className="mt-1 text-sm text-destructive">{emailError}</p>}
+          </div>
+
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium">
+              Contraseña
+            </label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="mt-1 w-full px-4 py-2 border rounded-md bg-background text-foreground border-input focus:outline-none focus:ring-2 focus:ring-primary"
+              placeholder="••••••••"
+              required
+            />
+            {passwordError && <p className="mt-1 text-sm text-destructive">{passwordError}</p>}
+          </div>
+
+          {error && (
+            <div className="p-3 rounded-md bg-destructive/10 border border-destructive/30">
+              <p className="text-sm text-destructive">{error}</p>
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-2 px-4 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
+          </button>
+
+          <button
+            type="button"
+            onClick={loginWithTestCredentials}
+            disabled={loading}
+            className="w-full py-2 px-4 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/90 focus:outline-none focus:ring-2 focus:ring-secondary/50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? "Cargando..." : "Usar Credenciales de Prueba"}
+          </button>
+        </form>
+
+        <p className="text-center text-muted-foreground">
+          ¿No tienes una cuenta?{" "}
+          <Link href="/register" className="text-primary hover:underline">
             Regístrate aquí
           </Link>
         </p>
-      </form>
-      
-      {/* Botón para iniciar sesión rápida con credenciales de prueba */}
-      <div className="mt-4">
-        <button
-          type="button"
-          onClick={loginWithTestCredentials}
-          className="w-full bg-emerald-600 text-white py-2 rounded hover:bg-emerald-700 transition duration-200"
-          disabled={loading}
-        >
-          {loading ? "Cargando..." : "Iniciar Sesión con Cuenta de Prueba"}
-        </button>
       </div>
     </div>
   );

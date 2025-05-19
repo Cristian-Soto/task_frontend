@@ -117,12 +117,11 @@ export default function DashboardPage() {
     }
   };
 
-  return (
-    <div className="space-y-8">
+  return (    <div className="space-y-8">
       {/* Grid de estadísticas */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {statsArray.map((stat, index) => (
-          <div key={index} className={`${stat.color} rounded-lg shadow-md p-6`}>
+          <div key={index} className={`${stat.color} rounded-lg shadow-md p-6 bg-card-background dark:bg-gray-800`}>
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <Image
@@ -138,8 +137,7 @@ export default function DashboardPage() {
                   <dt className="text-sm font-medium text-gray-600 truncate">
                     {stat.title}
                   </dt>
-                  <dd className="flex items-baseline">
-                    <div className="text-2xl font-semibold text-gray-900">
+                  <dd className="flex items-baseline">                    <div className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
                       {stat.value}
                     </div>
                   </dd>
@@ -150,11 +148,10 @@ export default function DashboardPage() {
         ))}
       </div>
       
-      {/* Sección de tareas recientes */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white rounded-lg shadow-md p-6">
+      {/* Sección de tareas recientes */}      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 bg-card-background dark:bg-gray-800 rounded-lg shadow-md p-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold text-gray-700">Tareas Recientes</h2>
+            <h2 className="text-xl font-bold text-gray-700 dark:text-gray-200">Tareas Recientes</h2>
           </div>
           
           {tasksLoading ? (
@@ -315,10 +312,9 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Modal de formulario */}
-      {isFormOpen && (
+      {/* Modal de formulario */}      {isFormOpen && (
         <div className="fixed inset-0 z-10 overflow-y-auto backdrop-blur-sm bg-black/30 flex items-center justify-center px-4">
-          <div onClick={(e) => e.stopPropagation()} className="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl">
+          <div onClick={(e) => e.stopPropagation()} className="bg-card-background dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-2xl">
             <TaskForm
               onSubmit={handleCreateTask}
               onCancel={handleCloseForm}

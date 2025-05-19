@@ -48,19 +48,21 @@ const Header = () => {  const [user, setUser] = useState<any>(null);
       <div className="flex flex-col md:flex-row md:items-center justify-between">
         <div>          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
             {greeting} {userName ? userName : ''}
-          </h1>          <ClientDate />
-        </div>
-        <div className="mt-4 md:mt-0 flex items-center space-x-4">
-          <DarkModeToggle />
-          {user && (
-            <div className="flex items-center">
-              <div className="relative inline-block">
-                <div className="h-10 w-10 rounded-full bg-indigo-600 flex items-center justify-center text-white text-lg font-semibold">
-                  {user.first_name ? user.first_name.charAt(0).toUpperCase() : user.username?.charAt(0).toUpperCase() || '?'}
+          </h1>
+          <ClientDate />
+        </div>        <div className="mt-4 md:mt-0">
+          <div className="flex items-center space-x-4">
+            <DarkModeToggle />
+            {user && (
+              <div className="flex items-center">
+          <div className="relative inline-block">
+                  <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-lg font-semibold">
+                    {user.first_name ? user.first_name.charAt(0).toUpperCase() : user.username?.charAt(0).toUpperCase() || '?'}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </header>

@@ -64,17 +64,17 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-xl font-bold mb-6 text-gray-900">
+    <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+      <h2 className="text-xl font-bold mb-6 text-gray-900 dark:text-gray-100">
         {isEditing ? "Editar Tarea" : "Nueva Tarea"}
       </h2>
 
       <div className="mb-4">
         <label
           htmlFor="title"
-          className="block text-gray-700 text-sm font-medium mb-2"
+          className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-2"
         >
-          Título <span className="text-red-500">*</span>
+          Título <span className="text-red-500 dark:text-red-400">*</span>
         </label>
         <input
           type="text"
@@ -82,7 +82,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
           name="title"
           value={formData.title}
           onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-700"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700"
           placeholder="Título de la tarea"
           required
         />
@@ -91,7 +91,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
       <div className="mb-4">
         <label
           htmlFor="description"
-          className="block text-gray-700 text-sm font-medium mb-2"
+          className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-2"
         >
           Descripción
         </label>
@@ -100,7 +100,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
           name="description"
           value={formData.description}
           onChange={handleChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-700 min-h-[100px]"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 min-h-[100px]"
           placeholder="Descripción detallada de la tarea"
         />
       </div>
@@ -109,7 +109,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
         <div>
           <label
             htmlFor="status"
-            className="block text-gray-700 text-sm font-medium mb-2"
+            className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-2"
           >
             Estado
           </label>
@@ -118,7 +118,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
             name="status"
             value={formData.status}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-700"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700"
           >
             <option value="pending">Pendiente</option>
             <option value="in_progress">En proceso</option>
@@ -129,7 +129,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
         <div>
           <label
             htmlFor="priority"
-            className="block text-gray-700 text-sm font-medium mb-2"
+            className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-2"
           >
             Prioridad
           </label>
@@ -138,7 +138,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
             name="priority"
             value={formData.priority}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-700"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700"
           >
             <option value="baja">Baja</option>
             <option value="media">Media</option>
@@ -149,7 +149,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
         <div>
           <label
             htmlFor="due_date"
-            className="block text-gray-700 text-sm font-medium mb-2"
+            className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-2"
           >
             Fecha límite
           </label>
@@ -159,7 +159,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
             name="due_date"
             value={formData.due_date}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-700"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700"
           />
         </div>
       </div>
@@ -168,7 +168,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-200 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           Cancelar
         </button>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
+import { ThemeProvider } from "@/hooks/useThemeContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,30 +23,35 @@ export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) {
-  return (
-    <html lang="es" className="light">
+}>) {  return (
+    <html lang="es" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
+        suppressHydrationWarning
       >
-        <Toaster position="top-right" toastOptions={{
-          duration: 4000,
-          style: {
-            background: '#333',
-            color: '#fff',
-          },
-          success: {
+        <ThemeProvider>
+          <Toaster position="top-right" toastOptions={{
+            duration: 4000,
             style: {
-              background: '#22c55e',
+              background: 'var(--card-background)',
+              color: 'var(--foreground)',
+              border: '1px solid var(--border)'
             },
-          },
-          error: {
-            style: {
-              background: '#ef4444',
+            success: {
+              style: {
+                background: '#22c55e',
+                color: '#ffffff'
+              },
             },
-          }
-        }} />
-        {children}
+            error: {
+              style: {
+                background: '#ef4444',
+                color: '#ffffff'
+              },
+            }
+          }} />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

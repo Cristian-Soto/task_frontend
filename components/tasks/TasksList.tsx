@@ -155,7 +155,7 @@ const TasksList: React.FC<TasksListProps> = ({
   const totalItems = filteredTasks.length;
   const totalPagesCount = Math.ceil(totalItems / itemsPerPage) || 1;
   
-  // Asegurarnos de que la página actual es válida
+  // Asegurarnos de que la página current es válida
   const validCurrentPage = Math.max(1, Math.min(currentPage, totalPagesCount));
   
   // Obtener tareas para la página actual
@@ -172,8 +172,8 @@ const TasksList: React.FC<TasksListProps> = ({
 
   return (
     <div className="space-y-6">      <div className="flex flex-col space-y-6 mb-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-          <h2 className="text-2xl font-bold text-gray-700 mb-4 sm:mb-0">Mis Tareas</h2>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4 sm:mb-0">Mis Tareas</h2>
           
           <button
             onClick={() => handleOpenForm()}
@@ -185,15 +185,15 @@ const TasksList: React.FC<TasksListProps> = ({
             Nueva Tarea
           </button>
         </div>
-          <div className="bg-white p-4 rounded-lg shadow-sm">
-          <p className="text-sm font-medium text-gray-700 mb-3">Filtros</p>
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
+          <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Filtros</p>
           
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <svg 
                   xmlns="http://www.w3.org/2000/svg" 
-                  className="h-5 w-5 text-gray-400" 
+                  className="h-5 w-5 text-gray-400 dark:text-gray-500" 
                   fill="none" 
                   viewBox="0 0 24 24" 
                   stroke="currentColor"
@@ -211,14 +211,14 @@ const TasksList: React.FC<TasksListProps> = ({
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Buscar por título..."
-                className="px-4 py-2 pl-10 bg-white border border-gray-300 rounded-md shadow-sm text-sm text-gray-600 w-full"
+                className="px-4 py-2 pl-10 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm text-gray-600 dark:text-gray-200 w-full"
               />
             </div>
             
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value as TaskStatusFilter)}
-              className={`px-4 py-2 bg-white border ${filter !== 'todas' ? 'border-indigo-500' : 'border-gray-300'} rounded-md shadow-sm text-sm ${filter !== 'todas' ? 'text-indigo-700 font-medium' : 'text-gray-600'}`}
+              className={`px-4 py-2 bg-white dark:bg-gray-700 border ${filter !== 'todas' ? 'border-indigo-500' : 'border-gray-300 dark:border-gray-600'} rounded-md shadow-sm text-sm ${filter !== 'todas' ? 'text-indigo-700 dark:text-indigo-300 font-medium' : 'text-gray-600 dark:text-gray-300'}`}
             >
               <option value="todas">Todos los estados</option>
               <option value="pending">Pendientes</option>
@@ -229,7 +229,7 @@ const TasksList: React.FC<TasksListProps> = ({
             <select
               value={priorityFilter}
               onChange={(e) => setPriorityFilter(e.target.value as TaskPriorityFilter)}
-              className={`px-4 py-2 bg-white border ${priorityFilter !== 'todas' ? 'border-indigo-500' : 'border-gray-300'} rounded-md shadow-sm text-sm ${priorityFilter !== 'todas' ? 'text-indigo-700 font-medium' : 'text-gray-600'}`}
+              className={`px-4 py-2 bg-white dark:bg-gray-700 border ${priorityFilter !== 'todas' ? 'border-indigo-500' : 'border-gray-300 dark:border-gray-600'} rounded-md shadow-sm text-sm ${priorityFilter !== 'todas' ? 'text-indigo-700 dark:text-indigo-300 font-medium' : 'text-gray-600 dark:text-gray-300'}`}
             >
               <option value="todas">Todas las prioridades</option>
               <option value="baja">Prioridad Baja</option>
@@ -240,15 +240,15 @@ const TasksList: React.FC<TasksListProps> = ({
           
           {/* Indicadores de filtros activos */}
           {(filter !== 'todas' || priorityFilter !== 'todas' || searchTerm) && (
-            <div className="flex flex-wrap items-center gap-2 mt-4 pt-3 border-t border-gray-100">
-              <span className="text-xs font-medium text-gray-500">Filtros activos:</span>
+            <div className="flex flex-wrap items-center gap-2 mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
+              <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Filtros activos:</span>
               
               {filter !== 'todas' && (
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">
                   Estado: {getStatusDisplay(filter)}
                   <button 
                     onClick={() => setFilter('todas')} 
-                    className="ml-1 text-indigo-500 hover:text-indigo-800 focus:outline-none"
+                    className="ml-1 text-indigo-500 hover:text-indigo-800 dark:text-indigo-300 dark:hover:text-indigo-100 focus:outline-none"
                     aria-label="Eliminar filtro de estado"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
@@ -260,17 +260,17 @@ const TasksList: React.FC<TasksListProps> = ({
               
               {priorityFilter !== 'todas' && (
                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                  priorityFilter === 'baja' ? 'bg-blue-100 text-blue-800' : 
-                  priorityFilter === 'media' ? 'bg-yellow-100 text-yellow-800' : 
-                  'bg-red-100 text-red-800'
+                  priorityFilter === 'baja' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : 
+                  priorityFilter === 'media' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' : 
+                  'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                 }`}>
                   Prioridad: {priorityFilter}
                   <button 
                     onClick={() => setPriorityFilter('todas')} 
                     className={`ml-1 ${
-                      priorityFilter === 'baja' ? 'text-blue-500 hover:text-blue-800' : 
-                      priorityFilter === 'media' ? 'text-yellow-500 hover:text-yellow-800' : 
-                      'text-red-500 hover:text-red-800'
+                      priorityFilter === 'baja' ? 'text-blue-500 hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-100' : 
+                      priorityFilter === 'media' ? 'text-yellow-500 hover:text-yellow-800 dark:text-yellow-300 dark:hover:text-yellow-100' : 
+                      'text-red-500 hover:text-red-800 dark:text-red-300 dark:hover:text-red-100'
                     } focus:outline-none`}
                     aria-label="Eliminar filtro de prioridad"
                   >
@@ -282,11 +282,11 @@ const TasksList: React.FC<TasksListProps> = ({
               )}
               
               {searchTerm && (
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
                   Búsqueda: {searchTerm}
                   <button 
                     onClick={() => setSearchTerm('')} 
-                    className="ml-1 text-gray-500 hover:text-gray-800 focus:outline-none"
+                    className="ml-1 text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none"
                     aria-label="Eliminar término de búsqueda"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
@@ -303,7 +303,7 @@ const TasksList: React.FC<TasksListProps> = ({
                     setPriorityFilter('todas');
                     setSearchTerm('');
                   }} 
-                  className="text-xs text-indigo-600 hover:text-indigo-800 focus:outline-none ml-auto font-medium"
+                  className="text-xs text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 focus:outline-none ml-auto font-medium"
                 >
                   Limpiar todos
                 </button>
@@ -315,14 +315,14 @@ const TasksList: React.FC<TasksListProps> = ({
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-white rounded-lg shadow-md p-6 animate-pulse">
-              <div className="h-6 bg-gray-200 rounded w-3/4 mb-4"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
-              <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-              <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+            <div key={i} className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 animate-pulse">
+              <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-4"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-2"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full mb-2"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-4"></div>
               <div className="flex justify-between">
-                <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-                <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+                <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
+                <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
               </div>
             </div>
           ))}
@@ -350,8 +350,8 @@ const TasksList: React.FC<TasksListProps> = ({
                   disabled={validCurrentPage === 1}
                   className={`px-3 py-2 rounded-md ${
                     validCurrentPage === 1
-                      ? 'text-gray-400 cursor-not-allowed'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                   }`}
                   aria-label="Ir a la página anterior"
                 >
@@ -374,14 +374,14 @@ const TasksList: React.FC<TasksListProps> = ({
                     return (
                       <React.Fragment key={page}>
                         {showEllipsis && (
-                          <span className="px-3 py-2 text-gray-500">...</span>
+                          <span className="px-3 py-2 text-gray-500 dark:text-gray-400">...</span>
                         )}
                         <button
                           onClick={() => handlePageChange(page)}
                           className={`px-4 py-2 rounded-md ${
                             page === validCurrentPage
                               ? 'bg-indigo-600 text-white'
-                              : 'text-gray-700 hover:bg-gray-100'
+                              : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                           }`}
                           aria-current={page === validCurrentPage ? 'page' : undefined}
                           aria-label={`Ir a la página ${page}`}
@@ -398,8 +398,8 @@ const TasksList: React.FC<TasksListProps> = ({
                   disabled={validCurrentPage === totalPagesCount}
                   className={`px-3 py-2 rounded-md ${
                     validCurrentPage === totalPagesCount
-                      ? 'text-gray-400 cursor-not-allowed'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                   }`}
                   aria-label="Ir a la página siguiente"
                 >
@@ -413,7 +413,7 @@ const TasksList: React.FC<TasksListProps> = ({
           
           {/* Selector de elementos por página */}
           {totalItems > 6 && (
-            <div className="flex justify-center items-center mt-2 text-sm text-gray-600">
+            <div className="flex justify-center items-center mt-2 text-sm text-gray-600 dark:text-gray-300">
               <span>Mostrar</span>
               <select
                 value={itemsPerPage}
@@ -421,7 +421,7 @@ const TasksList: React.FC<TasksListProps> = ({
                   setItemsPerPage(Number(e.target.value));
                   setCurrentPage(1); // Resetear a la primera página
                 }}
-                className="mx-2 px-2 py-1 border border-gray-300 rounded-md"
+                className="mx-2 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200"
                 aria-label="Elementos por página"
               >
                 <option value="6">6</option>
@@ -433,9 +433,9 @@ const TasksList: React.FC<TasksListProps> = ({
           )}
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-md p-8 text-center">          <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-gray-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">          <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-          </svg>          <h3 className="text-xl font-medium text-gray-900 mb-2">
+          </svg>          <h3 className="text-xl font-medium text-gray-900 dark:text-gray-100 mb-2">
             {searchTerm 
               ? `No se encontraron tareas para "${searchTerm}"` 
               : priorityFilter !== 'todas' && filter !== 'todas'
@@ -446,7 +446,7 @@ const TasksList: React.FC<TasksListProps> = ({
                     ? `No hay tareas ${getStatusDisplay(filter)}`
                     : 'No hay tareas'}
           </h3>
-          <p className="text-gray-500 mb-6">
+          <p className="text-gray-500 dark:text-gray-400 mb-6">
             {searchTerm 
               ? "Intenta con otra búsqueda o cambia los filtros aplicados." 
               : filter === 'todas' && priorityFilter === 'todas'
@@ -466,7 +466,7 @@ const TasksList: React.FC<TasksListProps> = ({
       )}      {/* Form Modal */}
       {isFormOpen && (
         <div className="fixed inset-0 z-10 overflow-y-auto backdrop-blur-sm bg-black/30 flex items-center justify-center px-4" onClick={handleCloseForm}>
-          <div onClick={(e) => e.stopPropagation()} className="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl">
+          <div onClick={(e) => e.stopPropagation()} className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-2xl">
             <TaskForm
               task={currentTask}
               onSubmit={handleSubmitForm}
@@ -480,16 +480,16 @@ const TasksList: React.FC<TasksListProps> = ({
           <div className="min-h-screen px-4 flex items-center justify-center">
             <div className="fixed inset-0" onClick={() => setIsDeleteDialogOpen(false)}></div>
 
-            <div onClick={(e) => e.stopPropagation()} className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md z-20 relative">
-              <h2 className="text-xl font-bold mb-4 text-gray-700">Confirmar eliminación</h2>
-              <p className="text-gray-600 mb-6">
+            <div onClick={(e) => e.stopPropagation()} className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md z-20 relative">
+              <h2 className="text-xl font-bold mb-4 text-gray-700 dark:text-gray-200">Confirmar eliminación</h2>
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
                 ¿Estás seguro de que deseas eliminar esta tarea? Esta acción no se puede deshacer.
               </p>
 
               <div className="flex justify-end space-x-3">
                 <button
                   onClick={() => setIsDeleteDialogOpen(false)}
-                  className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 focus:outline-none"
+                  className="px-4 py-2 text-gray-700 dark:text-gray-200 bg-gray-200 dark:bg-gray-700 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none"
                 >
                   Cancelar
                 </button>
