@@ -23,6 +23,8 @@ export default function TasksPage() {
   }, [fetchTasks, tasks.length]);const handleCreateTask = async (taskData: Omit<Task, 'id' | 'created_at' | 'user'>) => {
     toast.loading('Creando nueva tarea...', { id: 'create-task' });
     
+    console.log('[TasksPage] Datos de la nueva tarea:', taskData);
+    
     try {
       await createTask(taskData);
       toast.success('¡Tarea creada correctamente!', { id: 'create-task' });
@@ -31,7 +33,7 @@ export default function TasksPage() {
       toast.error(errorMessage, { id: 'create-task' });
       throw error;
     }
-  };  const handleUpdateTask = async (id: number, taskData: Partial<Task>) => {
+  };const handleUpdateTask = async (id: number, taskData: Partial<Task>) => {
     const toastId = `update-task-${id}`;
     
     try {

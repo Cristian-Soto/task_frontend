@@ -174,23 +174,28 @@ export const taskService = {
       throw new Error("Error al obtener la información de la tarea.");
     }
   },
-
   // Crear una nueva tarea
   createTask: async (taskData: Omit<Task, 'id' | 'created_at' | 'user'>): Promise<Task> => {
     try {
       // Validar datos antes de enviarlos
       const validatedData = { ...taskData };
       
+      console.log("[taskService] Datos recibidos para crear tarea:", validatedData);
+      
       // Asegurarse de que status sea válido
       if (!validatedData.status || !['pending', 'in_progress', 'completed'].includes(validatedData.status)) {
-        console.warn(`Estado inválido o no proporcionado: ${validatedData.status}, usando 'pending' por defecto`);
+        console.warn(`[taskService] Estado inválido o no proporcionado: ${validatedData.status}, usando 'pending' por defecto`);
         validatedData.status = 'pending';
+      } else {
+        console.log(`[taskService] Estado válido recibido: ${validatedData.status}`);
       }
       
       // Asegurarse de que priority sea válido
       if (!validatedData.priority || !['baja', 'media', 'alta'].includes(validatedData.priority)) {
-        console.warn(`Prioridad inválida o no proporcionada: ${validatedData.priority}, usando 'media' por defecto`);
+        console.warn(`[taskService] Prioridad inválida o no proporcionada: ${validatedData.priority}, usando 'media' por defecto`);
         validatedData.priority = 'media';
+      } else {
+        console.log(`[taskService] Prioridad válida recibida: ${validatedData.priority}`);
       }
       
       // Asegurarse de que title no esté vacío
@@ -216,12 +221,29 @@ export const taskService = {
           validatedData.due_date = null;
         }
       }
-      
-      console.log("Creando nueva tarea con datos validados:", JSON.stringify(validatedData, null, 2));
+        console.log("[taskService] Enviando datos validados a la API:", JSON.stringify(validatedData, null, 2));
       
       const response = await api.post("/api/tasks/", validatedData);
-      console.log("Tarea creada con éxito:", response.data);
-      return response.data;
+      console.log("[taskService] Respuesta del servidor tras crear tarea:", response.data);
+      
+      // Procesar la respuesta para asegurarnos de que tiene todos los campos necesarios
+      const createdTask: Task = {
+        id: response.data.id,
+        title: response.data.title || validatedData.title,
+        description: response.data.description || validatedData.description || '',
+        status: ['pending', 'in_progress', 'completed'].includes(response.data.status) 
+          ? response.data.status 
+          : validatedData.status,
+        priority: ['baja', 'media', 'alta'].includes(response.data.priority) 
+          ? response.data.priority 
+          : validatedData.priority,
+        created_at: response.data.created_at || new Date().toISOString(),
+        due_date: response.data.due_date || validatedData.due_date || null,
+        user: response.data.user || 0
+      };
+      
+      console.log("[taskService] Tarea creada y procesada:", createdTask);
+      return createdTask;
     } catch (error: any) {
       console.error("taskService - createTask - Error:", error);
       

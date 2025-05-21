@@ -257,10 +257,25 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
       throw error; // Re-lanzar el error para que se pueda manejar en el componente
     }
   },
-
   createTask: async (taskData) => {
     try {
+      // Validar los datos antes de enviarlos
+      if (!taskData.status || !['pending', 'in_progress', 'completed'].includes(taskData.status)) {
+        console.error(`[useTaskStore] Estado inválido para nueva tarea: ${taskData.status}`);
+        throw new Error("Estado de tarea inválido");
+      }
+      
+      if (!taskData.priority || !['baja', 'media', 'alta'].includes(taskData.priority)) {
+        console.error(`[useTaskStore] Prioridad inválida para nueva tarea: ${taskData.priority}`);
+        throw new Error("Prioridad de tarea inválida");
+      }
+      
+      console.log('[useTaskStore] Creando tarea con datos:', taskData);
+      
       const newTask = await taskService.createTask(taskData);
+      
+      console.log('[useTaskStore] Tarea creada con éxito:', newTask);
+      
       set(state => {
         const newTasks = [newTask, ...state.tasks];
         return {
@@ -272,6 +287,7 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
         };
       });
     } catch (error) {
+      console.error('[useTaskStore] Error al crear tarea:', error);
       throw error;
     }
   },

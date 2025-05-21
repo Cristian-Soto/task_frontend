@@ -42,6 +42,14 @@ api.interceptors.request.use(async (config) => {
     return config;
   }
   
+  // Log de la solicitud para debugging
+  if (config.url?.includes('/api/tasks/')) {
+    console.log(`[API] Enviando ${config.method?.toUpperCase()} a ${config.url}:`, 
+      config.method?.toUpperCase() === 'POST' || config.method?.toUpperCase() === 'PUT' || config.method?.toUpperCase() === 'PATCH' 
+        ? config.data 
+        : 'No body data');
+  }
+  
   try {
     // Intentar obtener token primero de las cookies, luego del localStorage
     let token = CookieUtils.getCookie('access_token') || localStorage.getItem('access_token');
@@ -78,6 +86,18 @@ api.interceptors.request.use(async (config) => {
 
 api.interceptors.response.use(
   (response) => {
+    // Log especial para tareas
+    if (response.config.url?.includes('/api/tasks/')) {
+      console.log(`[API] Respuesta de ${response.config.method?.toUpperCase()} a ${response.config.url}:`, response.data);
+
+      // Especial para creación de tareas
+      if (response.config.method === 'post') {
+        console.log('[API] Datos POST enviados:', JSON.parse(response.config.data || '{}'));
+        console.log('[API] Status recibido:', response.data.status);
+        console.log('[API] Priority recibida:', response.data.priority);
+      }
+    }
+
     console.log('Response:', {
       url: response.config.url,
       status: response.status,

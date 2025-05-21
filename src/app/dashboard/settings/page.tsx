@@ -1,10 +1,5 @@
 "use client";
 
-import dynamic from 'next/dynamic';
-
-// Importar ThemeTester de manera dinámica para evitar problemas de hidratación
-const ThemeTester = dynamic(() => import('@components/debug/ThemeTester'), { ssr: false });
-
 export default function SettingsPage() {
   return (
     <div className="space-y-6">
@@ -131,16 +126,8 @@ export default function SettingsPage() {
             </div>
             <button type="button" className="bg-gray-200 dark:bg-gray-600 relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" role="switch" aria-checked="false">
               <span aria-hidden="true" className="translate-x-0 pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform ring-0 transition ease-in-out duration-200"></span>
-            </button>
-          </div>
+            </button>          </div>
         </div>
-      </div>
-      
-      {/* Componente para probar el tema */}
-      <div className="bg-card-background dark:bg-gray-800 p-6 rounded-lg shadow mt-6">
-        <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-4">Verificador de Tema</h2>
-        <p className="text-gray-600 dark:text-gray-400 mb-6">Utiliza esta herramienta para verificar la compatibilidad del modo oscuro.</p>
-        <ThemeTester />
       </div>
     </div>
   );

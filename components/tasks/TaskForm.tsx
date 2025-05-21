@@ -43,12 +43,24 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
       [name]: value
     }));
   };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.title.trim()) {
       toast.error("El título de la tarea es obligatorio");
+      return;
+    }
+    
+    // Validar que el estado y la prioridad sean correctos
+    if (!['pending', 'in_progress', 'completed'].includes(formData.status)) {
+      console.error(`Estado inválido en el formulario: ${formData.status}`);
+      toast.error("Estado de tarea no válido");
+      return;
+    }
+
+    if (!['baja', 'media', 'alta'].includes(formData.priority)) {
+      console.error(`Prioridad inválida en el formulario: ${formData.priority}`);
+      toast.error("Prioridad de tarea no válida");
       return;
     }
     
@@ -112,8 +124,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
             className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-2"
           >
             Estado
-          </label>
-          <select
+          </label>          <select
             id="status"
             name="status"
             value={formData.status}
@@ -132,8 +143,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
             className="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-2"
           >
             Prioridad
-          </label>
-          <select
+          </label>          <select
             id="priority"
             name="priority"
             value={formData.priority}

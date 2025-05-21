@@ -10,9 +10,6 @@ import toast from 'react-hot-toast';
 import TaskForm from '@components/tasks/TaskForm';
 import dynamic from 'next/dynamic';
 
-// Cargar dinámicamente el depurador de tema para evitar problemas de hidratación
-const ThemeDebugger = dynamic(() => import('@components/debug/ThemeDebugger'), { ssr: false });
-
 export default function DashboardPage() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -300,9 +297,6 @@ export default function DashboardPage() {
                   <span className="text-gray-400 dark:text-gray-300">{stats.completed}</span>
                 </div>
               </div>
-              
-              {/* Depurador de Tema */}
-              <ThemeDebugger />
             </div>
           ) : (
             <p className="text-center text-gray-500">No se pudo cargar la información del usuario</p>

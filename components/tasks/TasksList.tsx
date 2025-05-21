@@ -42,10 +42,22 @@ const TasksList: React.FC<TasksListProps> = ({
   const handleCloseForm = () => {
     setCurrentTask(undefined);
     setIsFormOpen(false);
-  };
-  const handleSubmitForm = async (taskData: Omit<Task, 'id' | 'created_at' | 'user'>) => {
+  };  const handleSubmitForm = async (taskData: Omit<Task, 'id' | 'created_at' | 'user'>) => {
     try {
       console.log("TasksList: Procesando envío de formulario con datos:", taskData);
+      
+      // Asegurarse de que los datos tienen el estado y la prioridad correctos
+      if (!taskData.status || !['pending', 'in_progress', 'completed'].includes(taskData.status)) {
+        console.error(`TasksList: Estado inválido: ${taskData.status}`);
+        toast.error("Error: Estado de tarea no válido");
+        return;
+      }
+      
+      if (!taskData.priority || !['baja', 'media', 'alta'].includes(taskData.priority)) {
+        console.error(`TasksList: Prioridad inválida: ${taskData.priority}`);
+        toast.error("Error: Prioridad de tarea no válida");
+        return;
+      }
       
       if (currentTask) {
         console.log(`TasksList: Actualizando tarea existente ${currentTask.id}`);
