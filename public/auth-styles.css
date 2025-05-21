@@ -1,0 +1,302 @@
+/**
+ * Estilos para los formularios de autenticación
+ * Incluye temas claros y oscuros, efectos visuales y diseño responsivo
+ * 
+ * @author Cristian Soto
+ * @version 1.1.0
+ * @lastModified 2025-05-21
+ */
+
+/* Contenedor principal con gradiente y fondo de patrón */
+.auth-container {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+}
+
+/* Pseudo-elemento para el fondo con patrón de tareas */
+.auth-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/tasks-pattern-bg.svg');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.8;
+  z-index: 0;
+}
+
+/* Tarjeta principal con efecto de vidrio esmerilado */
+.auth-card {
+  width: 100%;
+  max-width: 450px;
+  padding: 2.5rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  position: relative;
+  z-index: 1;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Estilos para modo oscuro */
+.dark .auth-card {
+  background: rgba(17, 24, 39, 0.85);
+  border: 1px solid rgba(75, 85, 99, 0.2);
+}
+
+/* Encabezado de la tarjeta de autenticación */
+.auth-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+/* Título principal */
+.auth-header h2 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+/* Modo oscuro para el título */
+.dark .auth-header h2 {
+  color: #f3f4f6;
+}
+
+.auth-header p {
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.dark .auth-header p {
+  color: #cbd5e1;
+}
+
+.input-group {
+  position: relative;
+  margin-bottom: 1.25rem;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #334155;
+  font-size: 0.875rem;
+}
+
+.input-group .relative {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.dark .input-group label {
+  color: #e2e8f0;
+}
+
+.input-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  color: #94a3b8;
+  transform: translateY(-50%);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.input-icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+}
+
+.dark .input-icon {
+  color: #64748b;
+}
+
+.auth-input {
+  width: 100%;
+  padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  background-color: #f8fafc;
+  color: #0f172a;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+  height: 2.75rem;
+  line-height: 1.25;
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+.dark .auth-input {
+  background-color: #1e293b;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+.dark .auth-input:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.25);
+}
+
+.auth-button {
+  width: 100%;
+  padding: 0.75rem;
+  background: linear-gradient(to right, #3b82f6, #6366f1);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 1.5rem;
+  height: 2.75rem;
+}
+
+.auth-button svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+}
+
+.auth-button:hover {
+  background: linear-gradient(to right, #2563eb, #4f46e5);
+  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+}
+
+.auth-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+}
+
+.auth-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.dark .auth-button {
+  background: linear-gradient(to right, #3b82f6, #6366f1);
+}
+
+.dark .auth-button:hover {
+  background: linear-gradient(to right, #60a5fa, #818cf8);
+}
+
+.secondary-button {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+.secondary-button:hover {
+  background: #cbd5e1;
+  box-shadow: 0 4px 10px rgba(226, 232, 240, 0.3);
+}
+
+.dark .secondary-button {
+  background: #334155;
+  color: #f1f5f9;
+}
+
+.dark .secondary-button:hover {
+  background: #475569;
+  box-shadow: 0 4px 10px rgba(51, 65, 85, 0.3);
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.dark .auth-footer {
+  color: #94a3b8;
+}
+
+.auth-link {
+  color: #2563eb;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+  color: #3b82f6;
+}
+
+.dark .auth-link {
+  color: #60a5fa;
+}
+
+.dark .auth-link:hover {
+  color: #93c5fd;
+}
+
+.error-message {
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  margin-top: 1rem;
+  color: #ef4444;
+  font-size: 0.875rem;
+}
+
+.dark .error-message {
+  background-color: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.field-error {
+  margin-top: 0.3rem;
+  color: #ef4444;
+  font-size: 0.75rem;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.name-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .auth-card {
+    padding: 1.5rem;
+    margin: 1rem;
+    max-width: calc(100% - 2rem);
+  }
+  
+  .name-fields {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+}

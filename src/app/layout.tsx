@@ -4,6 +4,9 @@ import { Toaster } from "react-hot-toast";
 import "./globals.css";
 import { ThemeProvider } from "@/hooks/useThemeContext";
 
+// Importar los estilos de autenticación
+import "../../public/auth-styles.css";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],

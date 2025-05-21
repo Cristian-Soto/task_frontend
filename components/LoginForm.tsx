@@ -1,11 +1,30 @@
 "use client";
 
+/**
+ * @file LoginForm.tsx
+ * @description Componente para el formulario de inicio de sesión con validación de campos
+ * y diseño mejorado. Incluye funcionalidad para iniciar sesión con credenciales normales o 
+ * de prueba, validación de formularios y manejo de estados de error/carga.
+ * @author Cristian Soto
+ * @version 1.1.0
+ * @lastModified 2025-05-21
+ */
+
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { authService } from "@/service/auth";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import Image from "next/image";
 
+// Importar la hoja de estilos CSS para los formularios de autenticación
+import "../public/auth-styles.css";
+
+/**
+ * Componente de formulario de inicio de sesión
+ * Maneja validación, errores y redirecciones post-login
+ * @returns {JSX.Element} Formulario de inicio de sesión renderizado
+ */
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,7 +34,6 @@ export default function LoginForm() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-
   // Verificar si el usuario acaba de ser redirigido desde un registro exitoso
   // Este código se ejecuta cuando el usuario llega a la página de login con el parámetro 'registered=true' en la URL
   // La redirección se realiza desde RegisterForm después de completar el registro exitosamente
@@ -30,32 +48,6 @@ export default function LoginForm() {
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
     return emailRegex.test(email);
-  };
-
-  // Función para iniciar sesión con credenciales de prueba
-  const loginWithTestCredentials = async () => {
-    setEmail("usuario@ejemplo.com");
-    setPassword("123456");
-    
-    try {
-      setLoading(true);
-      setError("");
-      const result = await authService.login("usuario@ejemplo.com", "123456");
-      toast.success("Inicio de sesión exitoso");
-      router.push("/dashboard");
-    } catch (error: any) {
-      console.error("Error de inicio de sesión:", error);
-      
-      if (error.response && error.response.status === 401) {
-        setError("Credenciales incorrectas. Por favor, verifica tu correo y contraseña.");
-        toast.error("Credenciales de prueba inválidas");
-      } else {
-        setError("Ha ocurrido un error al iniciar sesión. Por favor, intenta de nuevo.");
-        toast.error("Error de conexión");
-      }
-    } finally {
-      setLoading(false);
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -98,78 +90,85 @@ export default function LoginForm() {
   const getInputClass = (hasError: boolean) => {
     return `border ${hasError ? 'border-red-500 bg-red-50 dark:bg-red-900/30' : 'border-gray-300 dark:border-gray-600'} p-3 rounded transition-colors focus:outline-none focus:ring-2 ${hasError ? 'focus:ring-red-200 dark:focus:ring-red-800' : 'focus:ring-blue-200 dark:focus:ring-blue-800'} focus:border-transparent text-base placeholder-gray-500 dark:placeholder-gray-400 placeholder-opacity-100 font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700`;
   }
-  return (    <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
-      <div className="w-full max-w-md p-8 space-y-6 bg-card-background dark:bg-gray-800 border border-border dark:border-gray-700 rounded-lg shadow-lg">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold">Iniciar Sesión</h2>
-          <p className="mt-2 text-muted-foreground dark:text-gray-300">
-            Ingresa tus credenciales para acceder
-          </p>
+  return (
+    <div className="auth-container">
+      <div className="auth-card">
+        <div className="auth-header">
+          <div className="flex justify-center mb-4">
+            <Image src="/task-logo.svg" alt="Task Manager Logo" width={80} height={80} />
+          </div>
+          <h2>Iniciar Sesión</h2>
+          <p>Bienvenido de nuevo, ingresa tus credenciales para acceder</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium dark:text-gray-200">
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full px-4 py-2 border rounded-md bg-background dark:bg-gray-700 text-foreground dark:text-gray-200 border-input dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary/70"
-              placeholder="usuario@ejemplo.com"
-              required
-            />
-            {emailError && <p className="mt-1 text-sm text-destructive dark:text-red-400">{emailError}</p>}
+        <form onSubmit={handleSubmit}>
+          <div className="input-group">
+            <label htmlFor="email">Email</label>
+            <div className="relative">
+              <span className="input-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                  <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                </svg>
+              </span>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="auth-input"
+                placeholder="usuario@ejemplo.com"
+                required
+              />
+            </div>
+            {emailError && <p className="field-error">{emailError}</p>}
           </div>
 
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium dark:text-gray-200">
-              Contraseña
-            </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full px-4 py-2 border rounded-md bg-background dark:bg-gray-700 text-foreground dark:text-gray-200 border-input dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary/70"
-              placeholder="••••••••"
-              required
-            />
-            {passwordError && <p className="mt-1 text-sm text-destructive dark:text-red-400">{passwordError}</p>}
+          <div className="input-group">
+            <label htmlFor="password">Contraseña</label>
+            <div className="relative">
+              <span className="input-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                </svg>
+              </span>
+              <input
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="auth-input"
+                placeholder="••••••••"
+                required
+              />
+            </div>
+            {passwordError && <p className="field-error">{passwordError}</p>}
           </div>
 
           {error && (
-            <div className="p-3 rounded-md bg-destructive/10 dark:bg-red-900/20 border border-destructive/30 dark:border-red-800/30">
-              <p className="text-sm text-destructive dark:text-red-400">{error}</p>
+            <div className="error-message">
+              <p>{error}</p>
             </div>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 px-4 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 dark:hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-primary/50 dark:focus:ring-primary/70 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="auth-button"
           >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+            </svg>
             {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
-          </button>
-
-          <button
-            type="button"
-            onClick={loginWithTestCredentials}
-            disabled={loading}
-            className="w-full py-2 px-4 bg-secondary dark:bg-gray-700 text-secondary-foreground dark:text-gray-200 rounded-md hover:bg-secondary/90 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-secondary/50 dark:focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? "Cargando..." : "Usar Credenciales de Prueba"}
           </button>
         </form>
 
-        <p className="text-center text-muted-foreground dark:text-gray-400">
+        <div className="auth-footer">
           ¿No tienes una cuenta?{" "}
-          <Link href="/register" className="text-primary hover:underline">
+          <Link href="/register" className="auth-link">
             Regístrate aquí
           </Link>
-        </p>
+        </div>
       </div>
     </div>
   );

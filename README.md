@@ -1,36 +1,92 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Aplicación de Gestión de Tareas
 
-## Getting Started
+![Task Manager Logo](./public/task-logo.svg)
 
-First, run the development server:
+## Descripción
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Aplicación web para gestión de tareas personales desarrollada con Next.js y React. Permite a los usuarios registrarse, iniciar sesión, y administrar sus tareas diarias de forma eficiente con una interfaz moderna y atractiva.
+
+## Características
+
+- **Autenticación completa**: Sistema de registro e inicio de sesión con validación de campos
+- **Gestión de tareas**: Crear, editar, eliminar y marcar tareas como completadas
+- **Dashboard personalizado**: Vista general de tareas pendientes, en progreso y completadas
+- **Estadísticas**: Visualización de progreso y productividad
+- **Diseño responsivo**: Funciona en dispositivos móviles, tablets y escritorio
+- **Modo oscuro**: Soporte para tema claro y oscuro según preferencias del usuario
+- **Interfaz moderna**: UI moderna con efectos visuales, transiciones y feedback visual
+
+## Tecnologías
+
+- **Frontend**: Next.js, React, TypeScript, Tailwind CSS
+- **Estado**: React Hooks, Context API
+- **Estilizado**: CSS Modules, Tailwind CSS
+- **Notificaciones**: React Hot Toast
+- **Iconos**: SVG inline personalizados
+
+## Requisitos
+
+- Node.js 16.0.0 o superior
+- npm 7.0.0 o superior
+
+## Instalación
+
+1. Clonar el repositorio:
+   ```bash
+   git clone https://github.com/tu-usuario/task-manager.git
+   cd task-manager
+   ```
+
+2. Instalar dependencias:
+   ```bash
+   npm install
+   ```
+
+3. Configurar variables de entorno:
+   - Crear un archivo `.env.local` en la raíz del proyecto
+   - Agregar las siguientes variables:
+     ```
+     NEXT_PUBLIC_API_URL=http://localhost:8000/api
+     ```
+
+4. Iniciar el servidor de desarrollo:
+   ```bash
+   npm run dev
+   ```
+
+5. Abrir [http://localhost:3000](http://localhost:3000) en el navegador.
+
+## Estructura del Proyecto
+
+```
+task_frontend/
+├── components/         # Componentes reutilizables
+│   ├── auth/           # Componentes relacionados con autenticación
+│   ├── dashboard/      # Componentes del dashboard
+│   └── tasks/          # Componentes para gestión de tareas
+├── public/             # Archivos estáticos y recursos
+│   ├── icons/          # Iconos SVG
+│   └── ...             # Otros recursos
+├── src/
+│   ├── app/            # Páginas y rutas de la aplicación
+│   ├── hooks/          # Hooks personalizados
+│   ├── service/        # Servicios para API
+│   └── utils/          # Utilidades y helpers
+└── ...                 # Archivos de configuración
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Contribución
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Fork del repositorio
+2. Crear una rama para tu función: `git checkout -b feature/nueva-caracteristica`
+3. Commit de tus cambios: `git commit -m 'Añadir nueva característica'`
+4. Push a la rama: `git push origin feature/nueva-caracteristica`
+5. Enviar un Pull Request
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Licencia
 
-## Learn More
+[MIT](LICENSE)
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Desarrollado con ❤️ por Cristian Soto

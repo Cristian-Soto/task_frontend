@@ -1,18 +1,37 @@
 'use client'
 
+/**
+ * @file RegisterForm.tsx
+ * @description Componente de formulario de registro con validación completa de campos
+ * y diseño mejorado. Maneja la creación de nuevas cuentas de usuario.
+ * @author Cristian Soto
+ * @version 1.1.0
+ * @lastModified 2025-05-21
+ */
+
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { authService } from '@/service/auth'
 import toast from 'react-hot-toast'
+import Image from 'next/image'
+import Head from 'next/head'
 
+/**
+ * Componente de formulario de registro 
+ * Maneja la validación, creación de cuenta y redirección post-registro
+ * @returns {JSX.Element} Formulario de registro renderizado
+ */
 export default function RegisterForm() {
+  // Estados para los campos del formulario
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  
+  // Estados para mensajes de error de validación
   const [firstNameError, setFirstNameError] = useState('')
   const [lastNameError, setLastNameError] = useState('')
   const [usernameError, setUsernameError] = useState('')
@@ -20,15 +39,26 @@ export default function RegisterForm() {
   const [passwordError, setPasswordError] = useState('')
   const [confirmPasswordError, setConfirmPasswordError] = useState('')
   const [error, setError] = useState('')
+  
+  // Estado de carga para operaciones asíncronas
   const [loading, setLoading] = useState(false)
+  
+  // Hook de navegación
   const router = useRouter()
-
-  // Validación de email con expresión regular
+  /**
+   * Valida el formato del correo electrónico usando expresión regular
+   * @param {string} email - El correo electrónico a validar
+   * @returns {boolean} Verdadero si el formato es válido
+   */
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/
     return emailRegex.test(email)
   }
-
+  /**
+   * Maneja el envío del formulario de registro
+   * Incluye validación completa de todos los campos y envío a la API
+   * @param {React.FormEvent} e - Evento del formulario
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -39,8 +69,7 @@ export default function RegisterForm() {
     setEmailError('')
     setPasswordError('')
     setConfirmPasswordError('')
-    setError('')
-    
+    setError('')    
     // Validaciones de campos
     let hasError = false
     
@@ -114,134 +143,174 @@ export default function RegisterForm() {
     } finally {
       setLoading(false)
     }
-  }
+  }  /**
+   * Genera clases CSS condicionales para los campos de entrada
+   * @param {boolean} hasError - Indica si el campo tiene un error de validación
+   * @returns {string} Clases CSS para aplicar al campo
+   */
   const getInputClass = (hasError: boolean) => {
     return `border ${hasError ? 'border-red-500 bg-red-50 dark:bg-red-900/30' : 'border-gray-300 dark:border-gray-600'} p-3 rounded transition-colors focus:outline-none focus:ring-2 ${hasError ? 'focus:ring-red-200 dark:focus:ring-red-800' : 'focus:ring-blue-200 dark:focus:ring-blue-800'} focus:border-transparent text-base placeholder-gray-500 dark:placeholder-gray-400 placeholder-opacity-100 font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700`
   }
-
-  return (    <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
-      <div className="w-full max-w-md p-8 space-y-6 bg-card-background dark:bg-gray-800 border border-border dark:border-gray-700 rounded-lg shadow-lg">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold">Crear Cuenta</h2>
-          <p className="mt-2 text-muted-foreground dark:text-gray-300">
-            Completa el formulario para registrarte
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="firstName" className="block text-sm font-medium dark:text-gray-200">
-                Nombre
-              </label>
-              <input
-                type="text"
-                id="firstName"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                className="mt-1 w-full px-4 py-2 border rounded-md bg-background dark:bg-gray-700 text-foreground dark:text-gray-200 border-input dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary/70"
-                required
-              />
-              {firstNameError && <p className="mt-1 text-sm text-destructive dark:text-red-400">{firstNameError}</p>}
+  return (
+    <div className="auth-container">
+      <div className="auth-card">
+        {/* Encabezado del formulario con logo */}
+        <div className="auth-header">
+          <div className="flex justify-center mb-4">
+            <Image src="/task-logo.svg" alt="Task Manager Logo" width={80} height={80} />
+          </div>
+          <h2>Crear Cuenta</h2>
+          <p>Únete a nosotros y comienza a organizar tus tareas</p>
+        </div>        {/* Formulario de registro */}
+        <form onSubmit={handleSubmit}>
+          {/* Campos de nombre y apellido en layout de grid */}
+          <div className="name-fields">
+            <div className="input-group">
+              <label htmlFor="firstName">Nombre</label>
+              <div className="relative">
+                <span className="input-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                  </svg>
+                </span>
+                <input
+                  type="text"
+                  id="firstName"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className="auth-input"
+                  required
+                />
+              </div>
+              {firstNameError && <p className="field-error">{firstNameError}</p>}
             </div>
 
-            <div>
-              <label htmlFor="lastName" className="block text-sm font-medium dark:text-gray-200">
-                Apellido
-              </label>
-              <input
-                type="text"
-                id="lastName"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                className="mt-1 w-full px-4 py-2 border rounded-md bg-background dark:bg-gray-700 text-foreground dark:text-gray-200 border-input dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary/70"
-                required
-              />
-              {lastNameError && <p className="mt-1 text-sm text-destructive dark:text-red-400">{lastNameError}</p>}
+            <div className="input-group">
+              <label htmlFor="lastName">Apellido</label>
+              <div className="relative">
+                <span className="input-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                  </svg>
+                </span>
+                <input
+                  type="text"
+                  id="lastName"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  className="auth-input"
+                  required
+                />
+              </div>
+              {lastNameError && <p className="field-error">{lastNameError}</p>}
             </div>
           </div>
 
-          <div>
-            <label htmlFor="username" className="block text-sm font-medium dark:text-gray-200">
-              Nombre de usuario
-            </label>
-            <input
-              type="text"
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="mt-1 w-full px-4 py-2 border rounded-md bg-background dark:bg-gray-700 text-foreground dark:text-gray-200 border-input dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary/70"
-              required
-            />
-            {usernameError && <p className="mt-1 text-sm text-destructive dark:text-red-400">{usernameError}</p>}
+          <div className="input-group">
+            <label htmlFor="username">Nombre de usuario</label>
+            <div className="relative">
+              <span className="input-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 2a1 1 0 00-1 1v1a1 1 0 002 0V3a1 1 0 00-1-1zM4 4h3a3 3 0 006 0h3a2 2 0 012 2v9a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm2.5 7a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm2.45 4a2.5 2.5 0 10-4.9 0h4.9zM12 9a1 1 0 100 2h3a1 1 0 100-2h-3zm-1 4a1 1 0 011-1h2a1 1 0 110 2h-2a1 1 0 01-1-1z" clipRule="evenodd" />
+                </svg>
+              </span>
+              <input
+                type="text"
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="auth-input"
+                required
+              />
+            </div>
+            {usernameError && <p className="field-error">{usernameError}</p>}
           </div>
 
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium dark:text-gray-200">
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full px-4 py-2 border rounded-md bg-background dark:bg-gray-700 text-foreground dark:text-gray-200 border-input dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary/70"
-              required
-            />
-            {emailError && <p className="mt-1 text-sm text-destructive dark:text-red-400">{emailError}</p>}
+          <div className="input-group">
+            <label htmlFor="email">Email</label>
+            <div className="relative">
+              <span className="input-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                  <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                </svg>
+              </span>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="auth-input"
+                required
+              />
+            </div>
+            {emailError && <p className="field-error">{emailError}</p>}
           </div>
 
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium dark:text-gray-200">
-              Contraseña
-            </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full px-4 py-2 border rounded-md bg-background dark:bg-gray-700 text-foreground dark:text-gray-200 border-input dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary/70"
-              required
-            />
-            {passwordError && <p className="mt-1 text-sm text-destructive dark:text-red-400">{passwordError}</p>}
+          <div className="input-group">
+            <label htmlFor="password">Contraseña</label>
+            <div className="relative">
+              <span className="input-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                </svg>
+              </span>
+              <input
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="auth-input"
+                required
+              />
+            </div>
+            {passwordError && <p className="field-error">{passwordError}</p>}
           </div>
 
-          <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium dark:text-gray-200">
-              Confirmar Contraseña
-            </label>
-            <input
-              type="password"
-              id="confirmPassword"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="mt-1 w-full px-4 py-2 border rounded-md bg-background dark:bg-gray-700 text-foreground dark:text-gray-200 border-input dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary/70"
-              required
-            />
-            {confirmPasswordError && <p className="mt-1 text-sm text-destructive dark:text-red-400">{confirmPasswordError}</p>}
+          <div className="input-group">
+            <label htmlFor="confirmPassword">Confirmar Contraseña</label>
+            <div className="relative">
+              <span className="input-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                </svg>
+              </span>
+              <input
+                type="password"
+                id="confirmPassword"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="auth-input"
+                required
+              />
+            </div>
+            {confirmPasswordError && <p className="field-error">{confirmPasswordError}</p>}
           </div>
 
           {error && (
-            <div className="p-3 rounded-md bg-destructive/10 dark:bg-red-900/20 border border-destructive/30 dark:border-red-800/30">
-              <p className="text-sm text-destructive dark:text-red-400">{error}</p>
+            <div className="error-message">
+              <p>{error}</p>
             </div>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 px-4 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 dark:hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-primary/50 dark:focus:ring-primary/70 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="auth-button"
           >
-            {loading ? "Registrando..." : "Registrarse"}
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" />
+            </svg>
+            {loading ? "Registrando..." : "Crear Cuenta"}
           </button>
         </form>
 
-        <p className="text-center text-muted-foreground dark:text-gray-400">
+        <div className="auth-footer">
           ¿Ya tienes una cuenta?{" "}
-          <Link href="/login" className="text-primary hover:underline">
+          <Link href="/login" className="auth-link">
             Inicia sesión aquí
           </Link>
-        </p>
+        </div>
       </div>
     </div>
   )

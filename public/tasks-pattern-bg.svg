@@ -1,0 +1,55 @@
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 0 0 L 40 0 L 40 40 L 0 40 Z" fill="none" stroke="#e0e0e0" stroke-width="0.5"/>
+      <path d="M 10 0 L 10 40 M 20 0 L 20 40 M 30 0 L 30 40" stroke="#f0f0f0" stroke-width="0.5"/>
+      <path d="M 0 10 L 40 10 M 0 20 L 40 20 M 0 30 L 40 30" stroke="#f0f0f0" stroke-width="0.5"/>
+    </pattern>
+    <linearGradient id="gradientBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563eb;stop-opacity:0.7" />
+      <stop offset="100%" style="stop-color:#4f46e5;stop-opacity:0.7" />
+    </linearGradient>
+    <linearGradient id="iconGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#818cf8;stop-opacity:0.8" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="600" fill="url(#gradientBg)"/>
+  <rect width="800" height="600" fill="url(#grid)"/>
+  
+  <!-- Task Icons and Elements -->
+  <g transform="translate(100,100)" opacity="0.8">
+    <rect x="0" y="0" width="200" height="40" rx="5" fill="url(#iconGradient)" />
+    <rect x="10" y="15" width="120" height="10" rx="2" fill="white" opacity="0.8" />
+    <rect x="150" y="10" width="20" height="20" rx="10" fill="white" opacity="0.8" />
+  </g>
+  
+  <g transform="translate(150,180)" opacity="0.7">
+    <rect x="0" y="0" width="180" height="40" rx="5" fill="url(#iconGradient)" />
+    <rect x="10" y="15" width="100" height="10" rx="2" fill="white" opacity="0.8" />
+    <rect x="130" y="10" width="20" height="20" rx="10" fill="white" opacity="0.8" />
+  </g>
+  
+  <g transform="translate(200,260)" opacity="0.6">
+    <rect x="0" y="0" width="220" height="40" rx="5" fill="url(#iconGradient)" />
+    <rect x="10" y="15" width="150" height="10" rx="2" fill="white" opacity="0.8" />
+    <rect x="180" y="10" width="20" height="20" rx="10" fill="white" opacity="0.8" />
+  </g>
+  
+  <g transform="translate(500,150)" opacity="0.7">
+    <circle cx="50" cy="50" r="40" fill="url(#iconGradient)" />
+    <path d="M 35 50 L 45 60 L 65 40" stroke="white" stroke-width="5" fill="none" />
+  </g>
+  
+  <g transform="translate(400,300)" opacity="0.5">
+    <circle cx="40" cy="40" r="35" fill="url(#iconGradient)" />
+    <rect x="25" y="25" width="30" height="30" rx="2" fill="white" opacity="0.8" />
+  </g>
+  
+  <g transform="translate(550,350)" opacity="0.6">
+    <circle cx="45" cy="45" r="40" fill="url(#iconGradient)" />
+    <path d="M 30 45 L 60 45 M 45 30 L 45 60" stroke="white" stroke-width="5" />
+  </g>
+</svg>

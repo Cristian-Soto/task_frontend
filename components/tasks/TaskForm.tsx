@@ -1,8 +1,25 @@
 ﻿"use client";
 
+/**
+ * @file TaskForm.tsx
+ * @description Formulario para crear y editar tareas con validación de campos
+ * y soporte para diferentes estados y prioridades.
+ * @author Tu Equipo de Desarrollo
+ * @version 1.1.0
+ * @lastModified 2025-05-21
+ */
+
 import { useState, useEffect } from "react";
 import { Task } from "@/service/task";
 import toast from "react-hot-toast";
+
+/**
+ * Propiedades para el componente TaskForm
+ * @interface TaskFormProps
+ * @property {Task} [task] - Tarea existente para editar (opcional)
+ * @property {Function} onSubmit - Función de callback para enviar el formulario
+ * @property {Function} onCancel - Función para cancelar y cerrar el formulario
+ */
 
 interface TaskFormProps {
   task?: Task;
