@@ -66,8 +66,8 @@ export default function TasksPage() {
   };  return (
     <div className="space-y-4">
       <header className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-700">Gestión de Tareas</h1>
-        <p className="text-gray-600">Administra y organiza todas tus tareas en un solo lugar</p>
+        <h1 className="text-3xl font-bold text-gray-700 dark:text-gray-200">Gestión de Tareas</h1>
+        <p className="text-gray-600 dark:text-gray-400">Administra y organiza todas tus tareas en un solo lugar</p>
       </header>      <div className="bg-card-background dark:bg-gray-800 rounded-lg shadow-md p-6">
         <TasksList
           tasks={tasks}

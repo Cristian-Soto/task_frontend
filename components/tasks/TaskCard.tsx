@@ -44,15 +44,14 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onStatusCha
   // Asegurarnos de que la prioridad sea válida
   const priority = ['baja', 'media', 'alta'].includes(task.priority) ? task.priority : 'media';
   const status = ['pending', 'in_progress', 'completed'].includes(task.status) ? task.status : 'pending';
-  
-  // Debug para ver qué está recibiendo el componente
+    // Debug para ver qué está recibiendo el componente
   console.log(`TaskCard - Datos recibidos:`, { 
     id: task.id, 
     title: task.title, 
     priority: task.priority,
     status: task.status
   });
-  return (    <div className="bg-card-background rounded-lg border border-border shadow-sm p-6 hover:shadow-md transition-shadow">
+  return (    <div className="bg-card-background dark:bg-gray-800 rounded-lg border border-border dark:border-gray-700 shadow-sm p-6 hover:shadow-md transition-shadow">
       <div className="flex justify-between items-start mb-4">
         <h3 className="text-xl font-semibold text-foreground">{task.title}</h3>
         <div className="flex space-x-2">
@@ -63,7 +62,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete, onStatusCha
             {task.status_display || STATUS_MAPPING[status] || 'Pendiente'}
           </span>
         </div>
-      </div>      <p className="text-muted-foreground mb-4 line-clamp-2">{task.description}</p>
+      </div><p className="text-muted-foreground mb-4 line-clamp-2">{task.description}</p>
 
       <div className="flex justify-between items-center mb-4">
         <div className="text-sm text-muted-foreground">

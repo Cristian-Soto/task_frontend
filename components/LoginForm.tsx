@@ -98,19 +98,18 @@ export default function LoginForm() {
   const getInputClass = (hasError: boolean) => {
     return `border ${hasError ? 'border-red-500 bg-red-50 dark:bg-red-900/30' : 'border-gray-300 dark:border-gray-600'} p-3 rounded transition-colors focus:outline-none focus:ring-2 ${hasError ? 'focus:ring-red-200 dark:focus:ring-red-800' : 'focus:ring-blue-200 dark:focus:ring-blue-800'} focus:border-transparent text-base placeholder-gray-500 dark:placeholder-gray-400 placeholder-opacity-100 font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700`;
   }
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
-      <div className="w-full max-w-md p-8 space-y-6 bg-card-background border border-border rounded-lg shadow-lg">
+  return (    <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+      <div className="w-full max-w-md p-8 space-y-6 bg-card-background dark:bg-gray-800 border border-border dark:border-gray-700 rounded-lg shadow-lg">
         <div className="text-center">
           <h2 className="text-2xl font-bold">Iniciar Sesión</h2>
-          <p className="mt-2 text-muted-foreground">
+          <p className="mt-2 text-muted-foreground dark:text-gray-300">
             Ingresa tus credenciales para acceder
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium">
+            <label htmlFor="email" className="block text-sm font-medium dark:text-gray-200">
               Email
             </label>
             <input
@@ -118,15 +117,15 @@ export default function LoginForm() {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full px-4 py-2 border rounded-md bg-background text-foreground border-input focus:outline-none focus:ring-2 focus:ring-primary"
+              className="mt-1 w-full px-4 py-2 border rounded-md bg-background dark:bg-gray-700 text-foreground dark:text-gray-200 border-input dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary/70"
               placeholder="usuario@ejemplo.com"
               required
             />
-            {emailError && <p className="mt-1 text-sm text-destructive">{emailError}</p>}
+            {emailError && <p className="mt-1 text-sm text-destructive dark:text-red-400">{emailError}</p>}
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium">
+            <label htmlFor="password" className="block text-sm font-medium dark:text-gray-200">
               Contraseña
             </label>
             <input
@@ -134,23 +133,23 @@ export default function LoginForm() {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full px-4 py-2 border rounded-md bg-background text-foreground border-input focus:outline-none focus:ring-2 focus:ring-primary"
+              className="mt-1 w-full px-4 py-2 border rounded-md bg-background dark:bg-gray-700 text-foreground dark:text-gray-200 border-input dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-primary/70"
               placeholder="••••••••"
               required
             />
-            {passwordError && <p className="mt-1 text-sm text-destructive">{passwordError}</p>}
+            {passwordError && <p className="mt-1 text-sm text-destructive dark:text-red-400">{passwordError}</p>}
           </div>
 
           {error && (
-            <div className="p-3 rounded-md bg-destructive/10 border border-destructive/30">
-              <p className="text-sm text-destructive">{error}</p>
+            <div className="p-3 rounded-md bg-destructive/10 dark:bg-red-900/20 border border-destructive/30 dark:border-red-800/30">
+              <p className="text-sm text-destructive dark:text-red-400">{error}</p>
             </div>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 px-4 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-2 px-4 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 dark:hover:bg-primary/80 focus:outline-none focus:ring-2 focus:ring-primary/50 dark:focus:ring-primary/70 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
           </button>
@@ -159,13 +158,13 @@ export default function LoginForm() {
             type="button"
             onClick={loginWithTestCredentials}
             disabled={loading}
-            className="w-full py-2 px-4 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/90 focus:outline-none focus:ring-2 focus:ring-secondary/50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-2 px-4 bg-secondary dark:bg-gray-700 text-secondary-foreground dark:text-gray-200 rounded-md hover:bg-secondary/90 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-secondary/50 dark:focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Cargando..." : "Usar Credenciales de Prueba"}
           </button>
         </form>
 
-        <p className="text-center text-muted-foreground">
+        <p className="text-center text-muted-foreground dark:text-gray-400">
           ¿No tienes una cuenta?{" "}
           <Link href="/register" className="text-primary hover:underline">
             Regístrate aquí

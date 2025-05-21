@@ -8,6 +8,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import TaskForm from '@components/tasks/TaskForm';
+import dynamic from 'next/dynamic';
+
+// Cargar dinámicamente el depurador de tema para evitar problemas de hidratación
+const ThemeDebugger = dynamic(() => import('@components/debug/ThemeDebugger'), { ssr: false });
 
 export default function DashboardPage() {
   const [user, setUser] = useState<any>(null);
@@ -26,13 +30,12 @@ export default function DashboardPage() {
   // Estados para la paginación de tareas recientes
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3; // Número fijo para tareas recientes
-
   // Convertir stats a array para el mapeo
   const statsArray = [
-    { title: 'Total de Tareas', value: stats.total, icon: '/icons/total.svg', color: 'bg-blue-100' },
-    { title: 'Completadas', value: stats.completed, icon: '/icons/completed.svg', color: 'bg-green-100' },
-    { title: 'Pendientes', value: stats.pending, icon: '/icons/pending.svg', color: 'bg-yellow-100' },
-    { title: 'En Progreso', value: stats.inProgress, icon: '/icons/in-progress.svg', color: 'bg-purple-100' },
+    { title: 'Total de Tareas', value: stats.total, icon: '/icons/total.svg', color: 'bg-blue-100 dark:bg-blue-900' },
+    { title: 'Completadas', value: stats.completed, icon: '/icons/completed.svg', color: 'bg-green-100 dark:bg-green-900' },
+    { title: 'Pendientes', value: stats.pending, icon: '/icons/pending.svg', color: 'bg-yellow-100 dark:bg-yellow-900' },
+    { title: 'En Progreso', value: stats.inProgress, icon: '/icons/in-progress.svg', color: 'bg-purple-100 dark:bg-purple-900' },
   ];
 
   // Cargar usuario
@@ -120,8 +123,7 @@ export default function DashboardPage() {
   return (    <div className="space-y-8">
       {/* Grid de estadísticas */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {statsArray.map((stat, index) => (
-          <div key={index} className={`${stat.color} rounded-lg shadow-md p-6 bg-card-background dark:bg-gray-800`}>
+        {statsArray.map((stat, index) => (          <div key={index} className={`${stat.color} rounded-lg shadow-md p-6 bg-card-background dark:bg-gray-800`}>
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <Image
@@ -129,12 +131,12 @@ export default function DashboardPage() {
                   alt={stat.title}
                   width={48}
                   height={48}
-                  className="w-12 h-12 text-gray-700"
+                  className="w-12 h-12 text-gray-700 dark:text-gray-200"
                 />
               </div>
               <div className="ml-5 w-0 flex-1">
                 <dl>
-                  <dt className="text-sm font-medium text-gray-600 truncate">
+                  <dt className="text-sm font-medium text-gray-600 dark:text-gray-300 truncate">
                     {stat.title}
                   </dt>
                   <dd className="flex items-baseline">                    <div className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
@@ -163,20 +165,19 @@ export default function DashboardPage() {
                 </div>
               ))}
             </div>          ) : recentTasks.length > 0 ? (
-            <div className="space-y-3">
-              {recentTasks.map(task => (
-                <div key={task.id} className="flex justify-between items-center p-3 border rounded-lg hover:bg-gray-50 text-gray-600">
+            <div className="space-y-3">              {recentTasks.map(task => (
+                <div key={task.id} className="flex justify-between items-center p-3 border dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
                   <div className="flex-grow">
                     <h3 className="font-medium">{task.title}</h3>
                     <div className="flex items-center mt-1">
                       <span className={`mr-2 px-2 py-0.5 rounded-full text-xs font-medium
-                        ${task.priority === 'baja' ? 'bg-blue-100 text-blue-800' : 
-                          task.priority === 'media' ? 'bg-yellow-100 text-yellow-800' : 
-                          'bg-red-100 text-red-800'}`}>
+                        ${task.priority === 'baja' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : 
+                          task.priority === 'media' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' : 
+                          'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'}`}>
                         {task.priority === 'baja' ? 'Baja' : 
                          task.priority === 'media' ? 'Media' : 'Alta'}
                       </span>
-                      <p className="text-sm text-gray-500 truncate">{task.description}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{task.description}</p>
                     </div>
                   </div>
                   <div className="ml-4">
@@ -184,9 +185,9 @@ export default function DashboardPage() {
                       value={task.status}
                       onChange={(e) => handleTaskStatusChange(task.id, e.target.value as Task['status'])}
                       className={`px-3 py-1 rounded-md text-xs font-medium cursor-pointer
-                        ${task.status === 'pending' ? 'bg-gray-100 text-gray-800' : 
-                          task.status === 'in_progress' ? 'bg-indigo-100 text-indigo-800' : 
-                          'bg-green-100 text-green-800'}`}
+                        ${task.status === 'pending' ? 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200' : 
+                          task.status === 'in_progress' ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200' : 
+                          'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'}`}
                     >
                       <option value="pending">Pendiente</option>
                       <option value="in_progress">En proceso</option>
@@ -206,8 +207,8 @@ export default function DashboardPage() {
                       disabled={currentPage === 1}
                       className={`p-1 rounded-md ${
                         currentPage === 1 
-                          ? 'text-gray-300 cursor-not-allowed' 
-                          : 'text-gray-600 hover:bg-gray-100'
+                          ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed' 
+                          : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                       }`}
                       aria-label="Página anterior"
                     >
@@ -217,14 +218,13 @@ export default function DashboardPage() {
                     </button>
                     
                     {/* Números de página */}
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                      <button
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (                      <button 
                         key={page}
                         onClick={() => handlePageChange(page)}
                         className={`w-8 h-8 flex items-center justify-center rounded-md text-sm ${
                           page === currentPage
-                            ? 'bg-indigo-600 text-white'
-                            : 'text-gray-700 hover:bg-gray-100'
+                            ? 'bg-indigo-600 text-white dark:bg-indigo-500'
+                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                         }`}
                         aria-current={page === currentPage ? 'page' : undefined}
                         aria-label={`Página ${page}`}
@@ -239,8 +239,8 @@ export default function DashboardPage() {
                       disabled={currentPage === totalPages}
                       className={`p-1 rounded-md ${
                         currentPage === totalPages 
-                          ? 'text-gray-300 cursor-not-allowed' 
-                          : 'text-gray-600 hover:bg-gray-100'
+                          ? 'text-gray-300 dark:text-gray-600 cursor-not-allowed' 
+                          : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                       }`}
                       aria-label="Página siguiente"
                     >
@@ -251,60 +251,58 @@ export default function DashboardPage() {
                   </nav>
                 </div>
               )}
-              
-              <div className="mt-4 text-center">
-                <Link href="/dashboard/tasks" className="inline-flex items-center justify-center px-4 py-2 border border-indigo-600 rounded-md text-indigo-600 hover:bg-indigo-50">
+                <div className="mt-4 text-center">
+                <Link href="/dashboard/tasks" className="inline-flex items-center justify-center px-4 py-2 border border-indigo-600 dark:border-indigo-400 rounded-md text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30">
                   Gestionar todas las tareas
                 </Link>
               </div>
             </div>
-          ) : (
-            <div className="text-center py-8">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          ) : (            <div className="text-center py-8">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
-              <p className="text-gray-500 mb-4">No tienes tareas creadas todavía</p>
+              <p className="text-gray-500 dark:text-gray-400 mb-4">No tienes tareas creadas todavía</p>
               <button 
                 onClick={handleOpenForm}
-                className="inline-flex items-center justify-center px-4 py-2 text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
+                className="inline-flex items-center justify-center px-4 py-2 text-white bg-indigo-600 dark:bg-indigo-500 rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-600"
               >
                 Crear mi primera tarea
               </button>
             </div>
           )}
-        </div>
-
-        {/* Sección de información del usuario */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-bold mb-4 text-gray-700">Información del Usuario</h2>
+        </div>        {/* Sección de información del usuario */}
+        <div className="bg-card-background dark:bg-gray-800 rounded-lg shadow-md p-6">
+          <h2 className="text-xl font-bold mb-4 text-gray-700 dark:text-gray-200">Información del Usuario</h2>
           {loading ? (
             <div className="animate-pulse space-y-3">
-              <div className="h-20 w-20 bg-gray-200 rounded-full mx-auto mb-4"></div>
-              <div className="h-5 bg-gray-200 rounded w-1/2 mx-auto mb-2"></div>
-              <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto mb-4"></div>
+              <div className="h-20 w-20 bg-gray-200 dark:bg-gray-600 rounded-full mx-auto mb-4"></div>
+              <div className="h-5 bg-gray-200 dark:bg-gray-600 rounded w-1/2 mx-auto mb-2"></div>
+              <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-3/4 mx-auto mb-4"></div>
             </div>
           ) : user ? (
             <div className="flex flex-col items-center">
               <div className="h-20 w-20 rounded-full bg-indigo-600 flex items-center justify-center text-white text-2xl font-bold mb-4">
                 {user.first_name ? user.first_name.charAt(0).toUpperCase() : user.username?.charAt(0).toUpperCase() || '?'}
               </div>
-              <h3 className="text-lg font-medium text-gray-600">
+              <h3 className="text-lg font-medium text-gray-600 dark:text-gray-200">
                 {user.first_name && user.last_name 
                   ? `${user.first_name} ${user.last_name}`
                   : user.username || 'Usuario'
                 }
               </h3>
-              <p className="text-gray-500 mb-4">{user.email}</p>
-              <div className="w-full space-y-2">
+              <p className="text-gray-500 dark:text-gray-400 mb-4">{user.email}</p>              <div className="w-full space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Tareas totales</span>
-                  <span className="text-gray-400">{stats.total}</span>
+                  <span className="text-gray-500 dark:text-gray-400">Tareas totales</span>
+                  <span className="text-gray-400 dark:text-gray-300">{stats.total}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Tareas completadas</span>
-                  <span className="text-gray-400">{stats.completed}</span>
+                  <span className="text-gray-500 dark:text-gray-400">Tareas completadas</span>
+                  <span className="text-gray-400 dark:text-gray-300">{stats.completed}</span>
                 </div>
               </div>
+              
+              {/* Depurador de Tema */}
+              <ThemeDebugger />
             </div>
           ) : (
             <p className="text-center text-gray-500">No se pudo cargar la información del usuario</p>

@@ -44,7 +44,7 @@ const Header = () => {  const [user, setUser] = useState<any>(null);
     ? `${user.first_name}${user.last_name ? ' ' + user.last_name : ''}` 
     : user?.username || "";
   return (
-    <header className="py-6 px-8 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+    <header className="py-6 px-8 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
       <div className="flex flex-col md:flex-row md:items-center justify-between">
         <div>          <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
             {greeting} {userName ? userName : ''}
@@ -55,8 +55,8 @@ const Header = () => {  const [user, setUser] = useState<any>(null);
             <DarkModeToggle />
             {user && (
               <div className="flex items-center">
-          <div className="relative inline-block">
-                  <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-lg font-semibold">
+                <div className="relative inline-block">
+                  <div className="h-10 w-10 rounded-full bg-primary dark:bg-indigo-700 flex items-center justify-center text-primary-foreground dark:text-white text-lg font-semibold shadow-sm">
                     {user.first_name ? user.first_name.charAt(0).toUpperCase() : user.username?.charAt(0).toUpperCase() || '?'}
                   </div>
                 </div>

@@ -62,7 +62,7 @@ const Sidebar = () => {
 
   return (    <aside      className={`${
         collapsed ? "w-20" : "w-64"
-      } bg-primary dark:bg-gray-800 text-primary-foreground transition-all duration-300 ease-in-out flex flex-col h-full border-r border-border`}
+      } bg-primary dark:bg-gray-800 text-primary-foreground transition-all duration-300 ease-in-out flex flex-col h-full border-r border-border dark:border-gray-700`}
     >
       <div className="p-5 flex justify-between items-center">
         <div className={`${collapsed ? "hidden" : "block"}`}>
@@ -70,7 +70,7 @@ const Sidebar = () => {
         </div>
         <button
           onClick={toggleSidebar}
-          className="p-2 rounded-md hover:bg-indigo-600 focus:outline-none"
+          className="p-2 rounded-md hover:bg-indigo-600 dark:hover:bg-indigo-700 focus:outline-none"
         >
           {collapsed ? (
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -104,9 +104,9 @@ const Sidebar = () => {
             );
           })}
         </nav>
-      </div>      <div className="p-4 border-t border-border">
+      </div>      <div className="p-4 border-t border-border dark:border-gray-700">
         <button
-          onClick={handleLogout}className={`flex items-center p-3 rounded-lg transition-all hover:bg-primary/10 w-full ${
+          onClick={handleLogout}className={`flex items-center p-3 rounded-lg transition-all hover:bg-primary/10 dark:hover:bg-gray-700 w-full text-primary-foreground ${
             collapsed ? "justify-center" : "justify-start"
           }`}
         >

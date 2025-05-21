@@ -51,10 +51,9 @@ export default function DashboardLayout({
     
     checkAuth();
   }, [router]);
-
   return (
     <AuthCheck>
-      <div className="flex h-screen bg-gray-50">
+      <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
         {/* Barra lateral */}
         <Sidebar />
         
@@ -64,7 +63,7 @@ export default function DashboardLayout({
           <Header />
           
           {/* Contenido */}
-          <main className="flex-1 overflow-y-auto p-6 bg-gray-50">
+          <main className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
             {children}
           </main>
         </div>
